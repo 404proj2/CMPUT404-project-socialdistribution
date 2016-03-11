@@ -8,8 +8,6 @@ APScheduler==3.0.5
 babelfish==0.5.5
 beautifulsoup4==4.4.1
 CherryPy==5.1.0
-dj-database-url==0.4.0
-Django==1.8
 djangorestframework==3.3.2
 feedparser==5.2.1
 Flask==0.10.1
