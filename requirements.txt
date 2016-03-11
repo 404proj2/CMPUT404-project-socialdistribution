@@ -20,7 +20,6 @@ FlexGet==1.2.479
 functools32==3.2.3.post2
 futures==3.0.5
 guessit==2.0.4
-gunicorn==19.4.5
 html5lib==0.9999999
 itsdangerous==0.24
 Jinja2==2.8
