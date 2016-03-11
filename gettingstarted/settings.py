@@ -133,15 +133,29 @@ LOCAL_HOST = "https://mighty-cliffs-82717.herokuapp.com/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
-STATIC_URL = '/static/'
+#STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+#STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.
+#STATICFILES_DIRS = (
+#    os.path.join(PROJECT_ROOT, 'static'),
+#)
+STATIC_URL = '/static/'
+PROFILE_IMAGES_URL = '/profile_images/'
+PROFILE_IMAGES_ROOT = os.path.join(BASE_DIR,'profile_images')
+STATIC_PATH = os.path.abspath(os.path.join(BASE_DIR, 'static'))
+PROFILE_IMAGES_PATH = os.path.abspath(os.path.join(BASE_DIR, 'profile_images'))
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT, 'static'),
+    STATIC_PATH,
+    PROFILE_IMAGES_PATH
 )
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
+# Default page if not logged in.
+LOGIN_URL= '/login'
+
+# Telling Django about the profile object
+AUTH_PROFILE_MODULE = "authors.Author"
