@@ -27,7 +27,8 @@ SECRET_KEY = '%rdo8!a#$s7)hg$m)r2ednw5uv%r82=!1f!3$(-x5*pp!mrh#a'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-LOCAL_HOST = "http://127.0.0.1:8000/"
+#LOCAL_HOST = "http://127.0.0.1:8000/"
+LOCAL_HOST = "https://mighty-cliffs-82717.herokuapp.com/"
 
 # Application definition
 
