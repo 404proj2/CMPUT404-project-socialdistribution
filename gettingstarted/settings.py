@@ -133,7 +133,7 @@ LOCAL_HOST = "https://mighty-cliffs-82717.herokuapp.com/"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-#STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 #STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.
