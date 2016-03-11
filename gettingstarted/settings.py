@@ -141,8 +141,6 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 #    os.path.join(PROJECT_ROOT, 'static'),
 #)
 STATIC_URL = '/static/'
-PROFILE_IMAGES_URL = '/profile_images/'
-PROFILE_IMAGES_ROOT = os.path.join(BASE_DIR,'profile_images')
 STATIC_PATH = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 PROFILE_IMAGES_PATH = os.path.abspath(os.path.join(BASE_DIR, 'profile_images'))
 STATICFILES_DIRS = (
