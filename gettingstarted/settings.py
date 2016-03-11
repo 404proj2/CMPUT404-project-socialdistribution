@@ -31,6 +31,14 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = (
+    'authors',
+    'friends',
+    'posts',
+    'stream',
+    'settings',
+    'comments',
+    'api',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
