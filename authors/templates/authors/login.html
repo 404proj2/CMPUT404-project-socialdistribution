@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style type="text/css">
+    body{
+        background: #EFEFBB; /* fallback for old browsers */
+        background: -webkit-linear-gradient(to left, #EFEFBB , #D4D3DD); /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to left, #EFEFBB , #D4D3DD); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    #bigHeader{
+    	background-color: #282828 ;
+    	color: white;
+    	padding: 2%;
+    }
+
+    #loginDiv{
+    	float:center;
+    	margin: 20%;
+    	margin-top: 5%;
+    	border: solid;
+    	border-color: #282828 ;
+    	border-radius:1%;
+    	border-width: 0.05%;
+    	padding: 2%;
+    	background-color: #282828 ;
+    	color: white;
+    }
+    #newusr{
+        float:center;
+    }
+    </style>
+</head>
+<body>
+	<div id = "bigHeader">
+		<h1>Our Site</h1>
+	</div>
+	<div id ="loginDiv">
+		<h1>Login</h1>
+		<form id="login_form" method="post" action="">{% csrf_token %}
+
+			<div class='form-group'>
+				<b>Name:</b>
+				<input type="text" name="username" value="" class="form-control" id='usr'>
+			</div class='form-group'>
+
+			<div class='form-group'>
+				<b>Password:</b>
+				<input type="password" name="password" value="" class="form-control" id='pswrd'><br>
+			</div>
+
+            <div class="span7 text-center">
+                <input type="submit" class="btn btn-primary" value="Sign In" align='center'></input>
+            </div>
+		</form>
+        <br>
+        <div id="newusr" align = center>
+
+            <a href="/register/">Are you a new user?</a>
+        </div>
+	</div>
+</body>
+</html>

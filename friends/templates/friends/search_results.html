@@ -1,0 +1,115 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- TODO: pull title from model -->
+  <title>Friends | C404 Social Distribution</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<!-- TODO: get css from static file -->
+<body>
+
+<!-- Nav Bar -->
+<nav class="navbar navbar-default navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span> 
+      </button>
+      <a class="navbar-brand" href="/">C404 Social Distribution</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+    <ul class="nav navbar-nav">
+      <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+      <!-- TODO: get friend requests from model -->
+      <li class="active"><a href="/friends"><span class="glyphicon glyphicon-user"></span> Friends <span class="badge">2</span></a></li>
+      <li><a href="/profile"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Settings</a></li>
+      <li><a href="/logout/"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+    </ul>
+    </div>
+  </div>
+</nav>
+<!-- End Nav Bar -->
+
+<!-- 
+    TODO: Need to tell somehow a user is friends with the current user or not 
+    so that the 'Add' button won't be displayed.
+    Same idea with 'Follow'.
+-->
+<div class="container">
+    <div id="search_results" class="tab-pane fade in active">
+      <h3>Search Results for '{{ query }}':</h3>
+      <br>
+      {% for local in local_authors %}
+        {% if forloop.first %}<div class="row">{% endif %}
+            <div class="col-md-3">
+                <div class="well">
+                  <center>
+                    {% if local in local_friends %}
+                      <h1 class="friends"><span class="glyphicon glyphicon glyphicon-ok"></span></h1> 
+                      <h3>{{ local }}</h3>
+                      <div class="btn-group-vertical btn-block">
+                        <button type="button" class="btn btn-default">Profile</button>
+                      </div>
+                    {% else %}
+                      <h1 class="not-friends"><span class="glyphicon glyphicon glyphicon-remove"></span></h1>
+                      <h3>{{ local }}</h3>
+                        <div class="btn-group-vertical btn-block">
+                          <button type="button" class="btn btn-default">Profile</button>
+                          <form method="POST" action="/friends/add_local/{{ local.author_id }}/">
+                            {% csrf_token %}
+                            <input type="submit" name="add_local" value ="Add Friend" class="btn-group-vertical btn-block btn btn-default"></input>
+                        </form>
+                        </div>
+                    {% endif %}
+                  </center>
+                </div>
+            </div>
+        {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
+        {% if forloop.last %}</div>{% endif %}
+      {% endfor %}
+
+      {% for global in global_authors %}
+        {% if forloop.first %}<div class="row">{% endif %}
+            <div class="col-md-3">
+                <div class="well">
+                  <center>
+                    {% if global in global_friends %}
+                      <h1 class="friends"><span class="glyphicon glyphicon glyphicon-ok"></span></h1> 
+                      <h3>{{ global }}</h3>
+                      <div class="btn-group-vertical btn-block">
+                        <button type="button" class="btn btn-default">Profile</button>
+                      </div>
+                    {% else %}
+                      <h1 class="not-friends"><span class="glyphicon glyphicon glyphicon-remove"></span></h1>
+                      <h3>{{ global }}</h3>
+                        <div class="btn-group-vertical btn-block">
+                          <button type="button" class="btn btn-default">Profile</button>
+                          <form method="POST" action="/friends/add_global/{{ global.global_author_id }}/">
+                            {% csrf_token %}
+                            <input type="submit" name="add_global" value ="Add Friend" class="btn-group-vertical btn-block btn btn-default"></input>
+                        </form>
+                        </div>
+                    {% endif %}
+                  </center>
+                </div>
+            </div>
+        {% if forloop.counter|divisibleby:4 %}</div><div class="row">{% endif %}
+        {% if forloop.last %}</div>{% endif %}
+      {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

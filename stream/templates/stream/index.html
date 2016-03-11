@@ -1,0 +1,187 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- TODO: pull title from model -->
+  <title>Stream | C404 Social Distribution</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<!-- TODO: get css from static file -->
+<body>
+
+<!-- Nav Bar -->
+<nav class="navbar navbar-default navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span> 
+      </button>
+      <a class="navbar-brand" href="/">C404 Social Distribution</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+      <!-- TODO: get friend requests from model -->
+      <li><a href="/friends"><span class="glyphicon glyphicon-user"></span> Friends <span class="badge">2</span></a></li>
+      <li><a href="/profile"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/settings"><span class="glyphicon glyphicon-user"></span> Settings</a></li>
+      <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+    </ul>
+    </div>
+  </div>
+</nav>
+<!-- End Nav Bar -->
+
+<div class="container">
+
+  <!-- New Post -->
+  <center>
+    <button class="btn btn-primary btn-md" data-toggle="collapse" data-target="#new-post" style='margin-bottom: 4px;'>New Post</button>
+  </center>
+  <div id="new-post" class="collapse">
+    <div class="well">
+      <div class="row">
+        <div class="col-md-9">
+          <h4>Content:</h4>
+            <textarea class="form-control" rows="5" id="post"></textarea>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <h4>Who can see this post?</h4>
+            <div class="radio">
+              <label><input type="radio" name="optradio">Anyone</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="optradio">Only Me</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="optradio">Only My Friends</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="optradio">Only Friends of my Friends</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="optradio">Only Friends on my Node</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-md" style='margin-bottom: 4px;'>Post</button>
+    </div>
+  </div>
+  
+  
+  <!-- End New Post -->
+
+  <!-- Stream -->
+  <div class="panel-group">
+    <!-- Post -->
+    <div class="panel panel-default">
+      <div class="panel-heading clearfix">
+      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
+      <div class="btn-group pull-right">
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
+        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
+      </div>
+    </div>
+      <div class="panel-body">
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+
+        <!-- Comments -->
+        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
+        <div id="comment-section" class="collapse">
+          <div class="panel panel-sm panel-default">
+          <div class="panel-heading clearfix">
+          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
+          <div class="pull-right">
+            <p>11:30PM Feb 29, 2016</p>
+          </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+          <div class="panel panel-sm panel-default">
+            <div class="panel-heading clearfix">
+            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
+            <div class="pull-right">
+              <p>11:30PM Feb 29, 2016</p>
+            </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+        </div>
+        <!-- End Comments -->
+      </div>
+    </div>
+    <!-- End Post -->
+
+  </div>
+  <!-- End Stream -->
+
+  <!-- Stream -->
+  <div class="panel-group">
+    <!-- Post -->
+    <div class="panel panel-default">
+      <div class="panel-heading clearfix">
+      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
+      <div class="btn-group pull-right">
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
+        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
+      </div>
+    </div>
+      <div class="panel-body">
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+
+        <!-- Comments -->
+        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
+        <div id="comment-section" class="collapse">
+          <div class="panel panel-sm panel-default">
+          <div class="panel-heading clearfix">
+          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
+          <div class="pull-right">
+            <p>11:30PM Feb 29, 2016</p>
+          </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+          <div class="panel panel-sm panel-default">
+            <div class="panel-heading clearfix">
+            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
+            <div class="pull-right">
+              <p>11:30PM Feb 29, 2016</p>
+            </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+        </div>
+        <!-- End Comments -->
+      </div>
+    </div>
+    <!-- End Post -->
+
+  </div>
+  <!-- End Stream -->
+
+</div>
+
+</body>
+</html>
