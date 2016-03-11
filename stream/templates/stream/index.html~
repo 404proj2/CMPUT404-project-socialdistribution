@@ -1,11 +1,4 @@
 {% load staticfiles %}
-<!--Copyright (c) 2016 Casey Scarborough, CMPUT404Proj
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,24 +7,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <title>Stream | C404 Social Distribution</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css">
+<link rel="stylesheet" href="//caseyscarborough.github.io/github-activity/github-activity-0.1.0.min.css">
 
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css">
-<link rel="stylesheet" href="https://caseyscarborough.github.io/github-activity/github-activity-0.1.0.min.css">
-<script src="https://code.jquery.com/jquery-1.11.0.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
-<script type="text/javascript" src="https://caseyscarborough.github.io/github-activity/github-activity-0.1.0.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.0.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+<script type="text/javascript" src="//caseyscarborough.github.io/github-activity/github-activity-0.1.0.min.js"></script>
 <script>
   function updateFeed(username) {
     GitHubActivity.feed({ username: username, selector: '#feed' });
   }
 
   $(document).ready(function() {
-    updateFeed('CMPUT404Proj');
+    updateFeed('Kieran92');
 
     $('#update').click(function() { updateFeed($("#username").val()); });
     $("#username").keypress(function(e) {
@@ -40,9 +32,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       }
     });
   });
-
 </script>
-
 
 </head>
 <!-- TODO: get css from static file -->
@@ -59,8 +49,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       </button>
       <a class="navbar-brand" href="/">C404 Social Distribution</a>
     </div>
-    <div class=
-    "collapse navbar-collapse" id="myNavbar">
+    <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav">
       <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
       <!-- TODO: get friend requests from model -->
@@ -74,16 +63,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     </div>
   </div>
 </nav>
-
-
 <!-- End Nav Bar -->
+
 
 <div class="container">
 
   <!-- New Post -->
-  <div id="newStuff">
   <center>
-        <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#gitModal"style='margin-bottom: 4px;'>Git Activity</button>
     <button class="btn btn-primary btn-md" data-toggle="collapse" data-target="#new-post" style='margin-bottom: 4px;'>New Post</button>
   </center>
   <div id="new-post" class="collapse">
@@ -120,55 +106,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   
   
   <!-- End New Post -->
-</div>
-  <!-- Stream -->
-  <div class="panel-group">
-    <!-- Post -->
-    <div class="panel panel-default">
-      <div class="panel-heading clearfix">
-      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
-      <div class="btn-group pull-right">
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
-        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
-      </div>
-    </div>
-      <div class="panel-body">
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-
-        <!-- Comments -->
-        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
-        <div id="comment-section" class="collapse">
-          <div class="panel panel-sm panel-default">
-          <div class="panel-heading clearfix">
-          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
-          <div class="pull-right">
-            <p>11:30PM Feb 29, 2016</p>
-          </div>
-          </div>
-            <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-            </div>
-          </div>
-          <div class="panel panel-sm panel-default">
-            <div class="panel-heading clearfix">
-            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
-            <div class="pull-right">
-              <p>11:30PM Feb 29, 2016</p>
-            </div>
-          </div>
-            <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-            </div>
-          </div>
-        </div>
-        <!-- End Comments -->
-      </div>
-    </div>
-    <!-- End Post -->
-
-  </div>
-  <!-- End Stream -->
 
   <!-- Stream -->
   <div class="panel-group">
@@ -218,23 +155,60 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
   </div>
   <!-- End Stream -->
-  <!--code courtesy of view-source:http://caseyscarborough.com/github-activity/
-  Copyright (c) 2015 Casey Scarborough-->
-  <div id = "gitModal" class = "modal fade" role= "dialog">
-  <div class="modal-content">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h3 class="modal-title">Git Feed</h3>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="username" placeholder="GitHub Username" />
-        <button id="update">Update</button>
-        <div id="feed"></div>
+
+  <!-- Stream -->
+  <div class="panel-group">
+    <!-- Post -->
+    <div class="panel panel-default">
+      <div class="panel-heading clearfix">
+      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
+      <div class="btn-group pull-right">
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
+        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
+        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
       </div>
     </div>
-</div>
+      <div class="panel-body">
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+
+        <!-- Comments -->
+        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
+        <div id="comment-section" class="collapse">
+          <div class="panel panel-sm panel-default">
+          <div class="panel-heading clearfix">
+          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
+          <div class="pull-right">
+            <p>11:30PM Feb 29, 2016</p>
+          </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+          <div class="panel panel-sm panel-default">
+            <div class="panel-heading clearfix">
+            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
+            <div class="pull-right">
+              <p>11:30PM Feb 29, 2016</p>
+            </div>
+          </div>
+            <div class="panel-body">
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+          </div>
+        </div>
+        <!-- End Comments -->
+      </div>
+    </div>
+    <!-- End Post -->
+
+  </div>
+  <!-- End Stream -->
+  <div id="feed"></div>
 
 </div>
+
+
 
 
 

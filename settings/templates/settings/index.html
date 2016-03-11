@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="https:://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
    <style type="text/css">
@@ -76,7 +76,13 @@
       </div>
     -->
     <b>
-      <p>Username: {{ user.username}} </p>
+
+      <!---<p>Username: {{ user.username}} </p>-->
+
+      <div class='form-group'>
+        <b>Username:</b>
+        <textarea   value="" class="form-control" id='usr' rows="1">{{ user.username }}</textarea>
+      </div>
       <p>Id: {{ author.author_id }}</p>
       <p>Host: {{ author.host }}</p>
       <p>Url: {{ author.host }}{{ author.author_id }} </p>
@@ -86,12 +92,12 @@
       {% csrf_token %}
 
       <div class='form-group'>
-    <b>Github:</b>
-        <textarea  value="" class="form-control" id='ghub'  rows="1">{{ author.github }}</textarea>
+    <b>Github Username:</b>
+        <textarea  value="" class="form-control" id='ghub'  rows="1">CMPUT404Proj</textarea>
       </div>
-
+      <b>
       <input type="submit" class="btn btn-primary" value="Save Changes" align='center' autocomplete="off" ></input>
-
+    </b>
     </form>
     </div>
 </div>
