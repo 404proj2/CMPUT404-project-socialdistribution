@@ -142,10 +142,8 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 #)
 STATIC_URL = '/static/'
 STATIC_PATH = os.path.abspath(os.path.join(BASE_DIR, 'static'))
-PROFILE_IMAGES_PATH = os.path.abspath(os.path.join(BASE_DIR, 'profile_images'))
 STATICFILES_DIRS = (
-    STATIC_PATH,
-    PROFILE_IMAGES_PATH
+    STATIC_PATH
 )
 
 # Simplified static file serving.
