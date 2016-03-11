@@ -1,5 +1,5 @@
 body { 
-	padding-top: 5%; 
+	padding-top: 70px; 
 }
 
 h1 {
@@ -16,14 +16,4 @@ h3 {
 
 .not-friends {
     color: #ff6666;
-}
-
-#gitModal
-{
-    width: 500px; /* your width */
-}
-
-#newStuff{
-  margin-top: 7%;
-
 }
