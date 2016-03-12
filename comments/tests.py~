@@ -117,7 +117,7 @@ class CommentTestCase(TestCase):
         Tests to see whether other authors can comment
         """
     	post = Post.objects.get(title="title1")
-        self.assertIsNotNone(post, "a post exists")
+        self.assertIsNotNone(post, "there is a post")
         user6 = User.objects.create_user(username="user6",password="top_secret")
 
         author6 = Author.objects.create(user=user6)
