@@ -1,3 +1,109 @@
 from django.test import TestCase
 
 # Create your tests here.
+from django.db import models
+from comments.models import Comment
+from posts.models import Post
+from authors.models import Author, LocalRelation
+from django.test import Client
+from django.contrib.auth.models import User
+
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+import collections
+
+import json
+import uuid
+
+class PostTestCase(TestCase):
+
+    def setUp(self):
+        user1 = User.objects.create(username='user1', password='top_secret')
+	author1 = Author.objects.create(user=user1)
+        
+        user2 = User.objects.create(username='user2', password='top_secret')
+	author2 = Author.objects.create(user=user2)
+
+        user3 = User.objects.create(username='user3', password='top_secret')
+        author3 = Author.objects.create(user=user3)
+
+	user4 = User.objects.create(username='user4', password='top_secret')
+	author3 = Author.objects.create(user=user4)
+
+	user5 = User.objects.create(username='user5', password='top_secret')
+	author3 = Author.objects.create(user=user5)
+
+	LocalRelation.objects.get_or_create(author1=author1,
+	                                           author2=author2,
+	                                           relation_status=True)
+	 
+	LocalRelation.objects.get_or_create(author1=author1,
+	                                           author2=author3,
+	                                           relation_status=False)
+	       
+	LocalRelation.objects.get_or_create(author1=author2,
+	                                           author2=author3,
+	                                           relation_status=True)
+
+        post1 = Post.objects.create(author=author1, 
+                                    contentType="content1",
+                                    title="title1",                                    
+                                    visibility='PUBLIC')
+        post2 = Post.objects.create(author=author2, 
+                                    contentType="content2",
+                                    title="title2",                                   
+                                    visibility='PUBLIC')
+        post3 = Post.objects.create(author=author3, 
+                                    contentType="content3",
+                                    title="title3",                                                         
+                                    visibility='PRIVATE')
+        post4 = Post.objects.create(author=author3, 
+                                    contentType="content4",
+                                    title="title4",                                                         
+                                    visibility='PRIVATE')
+        
+    def testcreate_posts(self):
+        c = Client()
+        response = c.post('/author/posts/post_new', {'title': '1','description': 'post','contentType': 'content','author': 'new_user1'})  
+
+    def testget_all_posts(self):
+        """ Tests if you can get all existsing posts    """
+        posts = Post.objects.all()
+        self.assertEquals(len(posts), 4,  "created 4 Posts, found " + str(len(posts)))
+        for post in posts:
+            self.assertIsNotNone(post, "Post is None")
+
+    def testget_post_by_title(self):
+        """Tests if you can get a post by title and verifies if all of its fields are correct. """
+        post = Post.objects.filter(title="title1")[0]
+        self.assertIsNotNone(post, "Post does not exist")
+        self.assertEquals(post.title, "title1", "Title does not match")
+        self.assertEquals(post.contentType, "content1", "Content does not match")
+        self.assertEquals(post.visibility, 'PUBLIC', "Visibility does not match")
+
+    def testDeletePost(self):
+        """Tests if you can delete a post"""        
+        post1 = Post.objects.filter(title="post1")
+        self.assertIsNotNone(post1, "posts exist!")
+        post1.delete()
+        post2 = Post.objects.filter(title="post2")
+        self.assertEquals(len(post2), 0, "posts do not exist")
+
+
+    def testGetAllAuthorPosts(self):
+        """Tests if you can get all of an author's posts"""
+        user1 = User.objects.get(username="user1",password='top_secret')
+        author1 = Author.objects.get(user=user1)
+        post1 = Post.objects.filter(author=author1)
+        self.assertEquals(len(post1), 1, "user1 had 1 posts, found " + str(len(post1)))
+
+    def test_comments(self):
+        c = Client()
+        response = c.post('/author/posts/post_new', {'title': '2', 'description': 'comment_test','content': 'comments_testing', 'comments': 'comments'})
+
+
+    
+
+    

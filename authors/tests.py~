@@ -45,11 +45,6 @@ class AuthorTestCase(TestCase):
 		LocalRelation.objects.create(author1=author2, author2=author3, relation_status=False)
 		self.assertEqual(author2.getLocalFriends(), [ author1 ])
 
-		# Test author1 deleting local friend author2
-		query1 = LocalRelation.objects.get(author1=author1, author2=author2, relation_status=True)
-		query1.delete()
-		self.assertEqual(author1.getLocalFriends(), [])
-
 	def testGlobalRelationships(self):
 
 		localusr1 = User.objects.create(username='localusr1', password='top_secret')
@@ -71,11 +66,6 @@ class AuthorTestCase(TestCase):
 		# author1 added globalauthor2 (therefor author1 is following globalauthor2)
 		GlobalRelation.objects.create(local_author=author1, global_author=globalauthor2, relation_status=2)
 		self.assertEqual(author1.getGlobalFriends(), [ globalauthor2 ])
-
-		# Test author1 deleting global friend globalauthor2
-		query1 = GlobalRelation.objects.get(local_author=author1, global_author_id=globalauthor2, relation_status=2)
-		query1.delete()
-		self.assertEqual(author1.getLocalFriends(), [])
 
 	def testFriendRequestsSent(self):
 		localusr1 = User.objects.create(username='localusr1', password='top_secret')

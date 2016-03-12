@@ -81,7 +81,7 @@
       {% for post in posts %}
       <div class="panel panel-default">
         <div class="panel-heading clearfix">
-          <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.author}}</h4>
+          <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.title|title }}</h4>
           <div class="btn-group pull-right">
             <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal-{{ post.post_id }}"><span class="glyphicon glyphicon-comment"></span> Comment</a>
             {% if current_author == post.author %}
@@ -94,16 +94,19 @@
           </div>
         </div>
         <div class="panel-body">
+          <h4>{{ post.title|title }}</h4>
+          <p class='publish-date'>{{ post.published }}</p>
           <p> {{ post.content }}</p>
 
           <!-- Comments -->
-          <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge"></span></button>
+          <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge badge-success">{{ post.comments|length }}</span></button>
           <div id="comment-section-{{ post.post_id }}" class="collapse">
-           {% for comment in comments %}
-           {% if comment.post.post_id == post.post_id %}
+            <!-- Comment -->
+           {% for comment in post.comments %}
+           <!--{% if comment.post.post_id == post.post_id %}-->
            <div class="panel panel-sm panel-default">
             <div class="panel-heading clearfix">
-              <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> {{ comment.author }}</span>
+              <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> {{ comment.author|title }}</span>
               <div class="pull-right">
                 <p>{{ comment.pub_date }}</p>
               </div>
@@ -112,8 +115,9 @@
               <p>{{ comment.comment_text }}</p>
             </div>
           </div>
-          {% endif %}
+          <!--{% endif %}-->
           {% endfor %}
+          <!-- End Comment -->
         </div>
         <!-- End Comments -->
       </div>

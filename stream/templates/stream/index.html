@@ -81,7 +81,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 <div class="container">
 
   <!-- New Post -->
+
   <div id="newStuff">
+
+  <!-- No New Posts from Here... 
+>>>>>>> 8ed11713c081eac7e91e659e018d6e564fc627c3
   <center>
         <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#gitModal"style='margin-bottom: 4px;'>Git Activity</button>
     <button class="btn btn-primary btn-md" data-toggle="collapse" data-target="#new-post" style='margin-bottom: 4px;'>New Post</button>
@@ -117,104 +121,103 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <button class="btn btn-primary btn-md" style='margin-bottom: 4px;'>Post</button>
     </div>
   </div>
-  
+  -->
   
   <!-- End New Post -->
+
+  <center>
+        <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#gitModal"style='margin-bottom: 4px;'>Git Activity</button>
+
+  </center>
 </div>
-  <!-- Stream -->
-  <div class="panel-group">
-    <!-- Post -->
-    <div class="panel panel-default">
-      <div class="panel-heading clearfix">
-      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
-      <div class="btn-group pull-right">
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
-        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
-      </div>
-    </div>
-      <div class="panel-body">
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
 
-        <!-- Comments -->
-        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
-        <div id="comment-section" class="collapse">
-          <div class="panel panel-sm panel-default">
-          <div class="panel-heading clearfix">
-          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
-          <div class="pull-right">
-            <p>11:30PM Feb 29, 2016</p>
+<!-- Stream -->
+    <div class="panel-group">
+      <!-- Post -->
+
+
+      {% for post in posts %}
+      <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.author|title }}</h4>
+          <div class="btn-group pull-right">
+            <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal-{{ post.post_id }}"><span class="glyphicon glyphicon-comment"></span> Comment</a>
+            {% if current_author == post.author %}
+            <form id="post_delete_form" role="form" method="post" action="/posts/delete/" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="hidden" name="post_id" value={{ post.post_id }} />
+              <button type="submit" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </form>
+            {% endif %}
           </div>
-          </div>
-            <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-            </div>
-          </div>
-          <div class="panel panel-sm panel-default">
+        </div>
+        <div class="panel-body">
+          <h4>{{ post.title|title }}</h4>
+          <p class='publish-date'>{{ post.published }}</p>
+          <p> {{ post.content }}</p>
+
+          <!-- Comments -->
+          <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge badge-success">{{ post.comments|length }}</span></button>
+          <div id="comment-section-{{ post.post_id }}" class="collapse">
+            <!-- Comment -->
+           {% for comment in post.comments %}
+           <!--{% if comment.post.post_id == post.post_id %}-->
+           <div class="panel panel-sm panel-default">
             <div class="panel-heading clearfix">
-            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
-            <div class="pull-right">
-              <p>11:30PM Feb 29, 2016</p>
+              <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> {{ comment.author|title }}</span>
+              <div class="pull-right">
+                <p>{{ comment.pub_date }}</p>
+              </div>
             </div>
-          </div>
             <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+              <p>{{ comment.comment_text }}</p>
             </div>
           </div>
+          <!--{% endif %}-->
+          {% endfor %}
+          <!-- End Comment -->
         </div>
         <!-- End Comments -->
       </div>
     </div>
     <!-- End Post -->
 
-  </div>
-  <!-- End Stream -->
 
-  <!-- Stream -->
-  <div class="panel-group">
-    <!-- Post -->
-    <div class="panel panel-default">
-      <div class="panel-heading clearfix">
-      <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> George Bush</h4>
-      <div class="btn-group pull-right">
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#shareModal_postid"><span class="glyphicon glyphicon-share"></span> Share</a>
-        <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal"><span class="glyphicon glyphicon-comment"></span> Comment</a>
-        <a href="#" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-trash"></span> Delete</a>
-      </div>
-    </div>
-      <div class="panel-body">
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+    <!-- New Comment Modal -->
+    <div id="newCommentModal-{{ post.post_id }}" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Comment</h4>
+          </div>
+          <form id="post_form" role="form" method="post" action="/comments/new/" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-body">
+             <div class="form-group">
+              <textarea name="comment_text" class="form-control" rows="5" id="post"></textarea>
+            </div>
+            <h4>Content Type</h4>
+            <div class="radio">
+              <label><input type="radio" name="contentType" value="text/x-markdown">Markdown</label>
+            </div>
+            <div class="radio">
+              <label><input type="radio" name="contentType" value="text/plain">Text</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+           <input type="hidden" name="post_id" value={{ post.post_id}} />
+           <button type="submit" class="btn btn-primary">Save</button>
+           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+         </div>
+       </form>
+     </div>
+   </div>
+ </div>
+ <!-- End New Comment Modal -->
+ {% endfor %}
 
-        <!-- Comments -->
-        <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section" style='margin-bottom: 4px;'>Comments <span class="badge">2</span></button>
-        <div id="comment-section" class="collapse">
-          <div class="panel panel-sm panel-default">
-          <div class="panel-heading clearfix">
-          <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Bill Clinton</span>
-          <div class="pull-right">
-            <p>11:30PM Feb 29, 2016</p>
-          </div>
-          </div>
-            <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-            </div>
-          </div>
-          <div class="panel panel-sm panel-default">
-            <div class="panel-heading clearfix">
-            <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> Donald Trump</span>
-            <div class="pull-right">
-              <p>11:30PM Feb 29, 2016</p>
-            </div>
-          </div>
-            <div class="panel-body">
-              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-            </div>
-          </div>
-        </div>
-        <!-- End Comments -->
-      </div>
-    </div>
-    <!-- End Post -->
 
   </div>
   <!-- End Stream -->
@@ -233,6 +236,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       </div>
     </div>
 </div>
+
 
 </div>
 
