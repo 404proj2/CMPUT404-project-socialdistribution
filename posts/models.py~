@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from authors.models import Author
-from django.utils import timezone
 import uuid
 
 class Post(models.Model):
@@ -19,7 +18,7 @@ class Post(models.Model):
 	)
 	author = models.ForeignKey(Author, on_delete=models.CASCADE)
 	post_id = models.CharField(max_length=38, unique=True, default=uuid.uuid4, primary_key=True)
-	published = models.DateTimeField('date published',default=timezone.now)
+	published = models.DateTimeField('date published')
 	content = models.TextField()
 	title = models.CharField(max_length=64)
 	contentType = models.CharField(max_length=20, choices=POST_TYPE_CHOICES,default='text/plain')
