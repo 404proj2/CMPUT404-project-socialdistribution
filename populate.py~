@@ -17,7 +17,7 @@ def populate():
 	add_local_relationship(author1, author2, True) # status=True to be friends locally.
 	add_local_relationship(author1, author3, True)
 	add_global_relationship(author1, author4, 2) # status=2 to be friends globally.
-	add_global_relationship(author1, author5, 1) # status=1 to be followed globally.
+	add_global_relationship(author1, author5, 1) # status=2 to be followed globally.
 
 
 def add_local_user(username):
