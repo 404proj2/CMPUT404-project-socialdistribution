@@ -15,9 +15,6 @@ class Author(models.Model):
 	def __unicode__(self): # unicode for Python 2.
 		return self.user.username
 
-	def getClassName(self):
-		return 'Author'
-
 	def get_absolute_image_url(self):
 		return "{0}{1}".format('/profile_images/', self.profile_pic.url)
 
@@ -87,6 +84,20 @@ class Author(models.Model):
 
 		return recieved_requests
 
+	def getFriendNames(self):
+		local_friends = self.getLocalFriends()
+		global_friends = self.getGlobalFriends()
+
+		local_usernames = []
+		for friend in local_friends:
+			local_usernames.append(friend.user.username)
+
+		global_usernames = []
+		for friend in global_friends:
+			global_usernames.append(friend.global_author_name)
+
+		return local_usernames, global_usernames
+
 class GlobalAuthor(models.Model):
 	global_author_id = models.CharField(max_length=38, unique=True, default=uuid.uuid4)
 	global_author_name = models.CharField(max_length=50)
@@ -95,9 +106,6 @@ class GlobalAuthor(models.Model):
 
 	def __unicode__(self): # unicode for Python 2.
 		return self.global_author_name
-
-	def getClassName(self):
-		return 'GlobalAuthor'
 
 class LocalRelation(models.Model):
 	author1 = models.ForeignKey(Author, related_name="author1")

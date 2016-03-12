@@ -35,13 +35,17 @@ def post_new(request):
 @login_required
 def show_posts(request):
 	print "gets to this point"
-	author = Author.objects.get(user=request.user)
-	posts = Post.objects.filter(published__lte=timezone.now()).order_by('-published')
-	comments = Comment.objects.all()
+	auth = Author.objects.get(user=request.user)
+	posts = Post.objects.filter(author=auth).order_by('-published')
+
+	for p in posts:
+		p.comments = Comment.objects.filter(post=p.post_id)
+
+	#comments = Comment.objects.all()
 	context = dict()
-	context['current_author'] = author
+	context['current_author'] = auth
 	context['posts'] = posts
-	context['comments'] = comments
+	#context['comments'] = comments
 	#print posts
 	return render(request,'authors/index.html', context)
 

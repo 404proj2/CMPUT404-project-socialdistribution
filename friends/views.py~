@@ -28,16 +28,9 @@ def index(request):
 @login_required
 def deleteLocalFriend(request, author_id):
 	if request.POST.get('delete_local'):
-		author = Author.objects.get(user=request.user)
-		delete = Author.objects.get(author_id=author_id)
-
-		# 2 possible ways for 2 local authors to be friends
-		try:
-			query1 = LocalRelation.objects.get(author1=author, author2=delete, relation_status=True)
-			query1.delete()
-		except:
-			query2 = LocalRelation.objects.get(author1=delete, author2=author, relation_status=True)
-			query2.delete()
+		query = Author.objects.get(author_id=author_id)
+		query.delete()
+	author = Author.objects.get(user=request.user)
 
 	context = dict()
 	context['current_author'] = author
@@ -52,10 +45,11 @@ def deleteLocalFriend(request, author_id):
 @login_required
 def deleteGlobalFriend(request, global_author_id):
 	if request.POST.get('delete_global'):
-		author = Author.objects.get(user=request.user)
-		global_author = GlobalAuthor.objects.get(global_author_id=global_author_id)
-		query = GlobalRelation.objects.get(local_author=author, global_author_id=global_author, relation_status=2)
+		query = GlobalAuthor.objects.get(global_author_id=global_author_id)
 		query.delete()
+
+	author = Author.objects.get(user=request.user)
+	print author.author_id
 
 	context = dict()
 	context['current_author'] = author
@@ -104,54 +98,6 @@ def addGlobalFriend(request, global_author_id):
 	return HttpResponseRedirect('/friends/', context)
 
 @login_required
-def confirmlocalrequest(request, author_id):
-	if request.POST.get('confirm_localrequest'):
-		query = Author.objects.get(author_id=author_id)
-		print 'CONFIRMING LOCAL WORKS'
-		author = Author.objects.get(user=request.user)
-
-		# remove old relationship
-		try:
-			query1 = LocalRelation.objects.get(author1=author, author2=query, relation_status=False)
-			query1.delete()
-		except:
-			query2 = LocalRelation.objects.get(author1=query, author2=author, relation_status=False)
-			query2.delete()
-
-		# Re-add with relation status as mutual friends
-		LocalRelation.objects.create(author1=author, author2=query, relation_status=True)
-
-	context = dict()
-	context['current_author'] = author
-	context['local_friends'] = author.getLocalFriends()
-	context['global_friends'] = author.getGlobalFriends()
-	context['requests_sent'] = author.getAllPendingFriendRequestsSent()
-	context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
-
-	return HttpResponseRedirect('/friends/', context)
-
-@login_required
-def confirmglobalrequest(request, global_author_id):
-	if request.POST.get('confirm_globalrequest'):
-		author = Author.objects.get(user=request.user)
-		global_author = GlobalAuthor.objects.get(global_author_id=global_author_id)
-		query = GlobalRelation.objects.get(local_author=author, global_author_id=global_author, relation_status=1)
-		query.delete()
-
-		# Re-add for mutual friends status
-		GlobalRelation.objects.create(local_author=author, global_author=global_author, relation_status=2)
-		print 'CONFIRMING GLOBAL WORKS'
-
-	context = dict()
-	context['current_author'] = author
-	context['local_friends'] = author.getLocalFriends()
-	context['global_friends'] = author.getGlobalFriends()
-	context['requests_sent'] = author.getAllPendingFriendRequestsSent()
-	context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
-
-	return HttpResponseRedirect('/friends/', context)
-
-@login_required
 def search(request):
 	# TODO: not finished with this yet.
 	if request.method == 'POST':
@@ -184,4 +130,3 @@ def search(request):
 			return HttpResponse("No such user found.")
 	else:
 		return render(request, 'friends/index.html')
-

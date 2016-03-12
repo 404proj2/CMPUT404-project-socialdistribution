@@ -17,3 +17,12 @@ h3 {
 .not-friends {
     color: #ff6666;
 }
+
+.panel {
+	margin-bottom: 8px !important;
+}
+
+.publish-date {
+	font-style: italic;
+	color: grey;
+}
