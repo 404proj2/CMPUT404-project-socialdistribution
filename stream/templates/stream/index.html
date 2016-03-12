@@ -1,4 +1,11 @@
 {% load staticfiles %}
+<!--Copyright (c) 2016 Casey Scarborough, CMPUT404Proj
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,8 +16,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/github.css' %}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css">
+
+<script src="https://code.jquery.com/jquery-1.11.0.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+<script type="text/javascript" src="{% static 'js/github.js' %}"></script>
+<script>
+  function updateFeed(username) {
+    GitHubActivity.feed({ username: username, selector: '#feed' });
+  }
+
+  $(document).ready(function() {
+    updateFeed('CMPUT404Proj');
+
+    $('#update').click(function() { updateFeed($("#username").val()); });
+    $("#username").keypress(function(e) {
+      if (e.which === 13) {
+        updateFeed($("#username").val());
+      }
+    });
+  });
+
+</script>
+
+
 </head>
 <!-- TODO: get css from static file -->
 <body>
@@ -26,7 +59,8 @@
       </button>
       <a class="navbar-brand" href="/">C404 Social Distribution</a>
     </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
+    <div class=
+    "collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav">
       <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
       <!-- TODO: get friend requests from model -->
@@ -40,13 +74,20 @@
     </div>
   </div>
 </nav>
+
+
 <!-- End Nav Bar -->
 
 <div class="container">
 
   <!-- New Post -->
+
+  <div id="newStuff">
+
   <!-- No New Posts from Here... 
+>>>>>>> 8ed11713c081eac7e91e659e018d6e564fc627c3
   <center>
+        <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#gitModal"style='margin-bottom: 4px;'>Git Activity</button>
     <button class="btn btn-primary btn-md" data-toggle="collapse" data-target="#new-post" style='margin-bottom: 4px;'>New Post</button>
   </center>
   <div id="new-post" class="collapse">
@@ -84,9 +125,16 @@
   
   <!-- End New Post -->
 
+  <center>
+        <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#gitModal"style='margin-bottom: 4px;'>Git Activity</button>
+
+  </center>
+</div>
+
 <!-- Stream -->
     <div class="panel-group">
       <!-- Post -->
+
 
       {% for post in posts %}
       <div class="panel panel-default">
@@ -171,7 +219,28 @@
  {% endfor %}
 
 
+  </div>
+  <!-- End Stream -->
+  <!--code courtesy of view-source:http://caseyscarborough.com/github-activity/
+  Copyright (c) 2015 Casey Scarborough-->
+  <div id = "gitModal" class = "modal fade" role= "dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="modal-title">Git Feed</h3>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="username" placeholder="GitHub Username" />
+        <button id="update">Update</button>
+        <div id="feed"></div>
+      </div>
+    </div>
 </div>
+
+
+</div>
+
+
 
 </body>
 </html>
