@@ -18,6 +18,17 @@ h3 {
     color: #ff6666;
 }
 
+
+
+#gitModal
+{
+    width: 500px; /* your width */
+}
+
+#newStuff{
+  margin-top: 7%;
+
+
 .panel {
 	margin-bottom: 8px !important;
 }
@@ -25,7 +36,10 @@ h3 {
 .publish-date {
 	font-style: italic;
 	color: grey;
+<<<<<<< HEAD
 }
 
 .btn-group {
 }
+=======
+>>>>>>> 98db9fb10f2031aee147fd123931398adccdd6af
