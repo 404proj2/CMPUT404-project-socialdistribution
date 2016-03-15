@@ -16,7 +16,12 @@ Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 All text is licensed under the CC-BY-SA 4.0 http://creativecommons.org/licenses/by-sa/4.0/deed.en_US
 
 Contributors:
-
+    
+    Kieran Boyle
+    Michael Kmicik
+    Qamar Ali
+    Raman Dhatt
+    Kathleen Baker
     Karim Baaba
     Ali Sajedi
     Kyle Richelhoff
