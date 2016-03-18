@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+
 @login_required
 def index(request):
 	return HttpResponse("Hello you're at posts index")

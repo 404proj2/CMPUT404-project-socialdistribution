@@ -19,7 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <link rel="stylesheet" href="{% static 'css/github.css' %}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
+<style>
+  #post_delete_form {
+    display: inline;
+  }
+  </style>
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css">
 
 <script src="https://code.jquery.com/jquery-1.11.0.js"></script>
@@ -137,7 +141,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
       {% for post in posts %}
-      <div class="panel panel-default">
+      <div class="panel panel-padding panel-default" style='margin-bottom: 16px;'>
         <div class="panel-heading clearfix">
           <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.author|title }}</h4>
           <div class="btn-group pull-right">
@@ -181,7 +185,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       </div>
     </div>
     <!-- End Post -->
-
 
     <!-- New Comment Modal -->
     <div id="newCommentModal-{{ post.post_id }}" class="modal fade" role="dialog">
