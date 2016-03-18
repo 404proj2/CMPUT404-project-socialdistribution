@@ -3,6 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from posts.forms import PostForm
 from authors.models import Author
 from nodes.models import Node
+from posts.serializers import PostsDeserializer
+from comments.serializers import CommentSerializer
 from comments.models import Comment
 from posts.models import Post
 from django.contrib.auth import get_user_model
@@ -10,14 +12,23 @@ from django.utils import timezone
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
+#from django.core import serializers
 
 import urllib2
-import json
+#import json
+
+from django.utils.six import BytesIO
+from rest_framework.parsers import JSONParser
 
 #@login_required
 #def index(request):
 #	return render(request, 'stream/index.html')
+
+def convert(post_dict):
+	post = {}
+
+	post.title = post_dict.title
+	return post
 
 def getExternalPosts():
 
@@ -28,21 +39,28 @@ def getExternalPosts():
 	for n in nodes:
 		url = n.node_url + 'posts/'
 		sd = urllib2.urlopen(url).read()
-		#serializers.deserialize("json", serialized_data, ignorenonexistent=True)
 		
-		serialized_data = '[' + sd + ']'
-		print serialized_data
+		stream = BytesIO(sd)
+		data = JSONParser().parse(stream)
 
+		#print sd
 
+		serializer = PostsDeserializer(data=data)
 
-		#for obj in serializers.deserialize("json", serialized_data):
-		#    print obj
+		serializer.is_valid()
+		
+		#deserialized = serializer.validated_data
+		print 'Deserialized Data: '
+		print serializer.data
+		#print serializer.data['posts']
 
-		# data should be the unserialized list of Post objects
-		#data = json.loads(serialized_data)
-		#posts.append(data)
-		#print data
+		#deserialized = serializer.validated_data.items()[1]
 
+		#print deserialized
+
+		#for post in deserialized[1]:
+		#	p = convert(post)
+		#	posts.append(p)
 
 	return posts
 
