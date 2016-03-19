@@ -55,7 +55,7 @@ This file specifies what posts look like:
 			"author":{
 				# ID of the Author (UUID) http://en.wikipedia.org/wiki/Universally_unique_identifier
 				"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
-				# the home host of the author
+				# the home host of the authorF
 				"host":"http://127.0.0.1:5454/",
 				# the display name of the author
 				"displayName":"Lara Croft",

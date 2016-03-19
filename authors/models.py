@@ -18,6 +18,9 @@ class Author(models.Model):
 	def getClassName(self):
 		return 'Author'
 
+	def set_url(self):
+		self.url = str(self.host) + 'author/' + str(self.author_id)
+
 	def get_absolute_image_url(self):
 		return "{0}{1}".format('/profile_images/', self.profile_pic.url)
 

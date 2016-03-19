@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from posts.models import Post
 from comments.models import Comment
+from authors.models import Author
+from authors.serializers import AuthorRequestSerializer
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
@@ -57,18 +59,30 @@ def queryFriend2Friend(request, uuid1, uuid2):
 
 @api_view(['GET'])
 def getPosts(request):
-	'''Get posts that are visible to current authenticated user'''
-	return HttpResponse("hello")
+	return 'hello'
 
 @api_view(['GET'])
 def getProfile(request, uuid):
-	'''View an author's profile'''
-	return HttpResponse("hello")
+	#View an authors profile
+	#try:
+	queryAuthor = Author.objects.get(author_id= uuid)
+	print(queryAuthor)
+	#except:
+		#return Response(status=status.HTTP_404_NOT_FOUND)
+	if request.method == 'GET':
+		queryAuthor = Author.objects.get(author_id=uuid)
+		serializer = AuthorRequestSerializer(queryAuthor)
+		return Response(serializer.data)
+
 
 @api_view(['GET'])
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
-	return HttpResponse("hello")
+	if request.method ==  'GET':
+		posts =  Post.objects.filter()
+		serializer = PostSerializer(posts, many=True)
+		return Response({"posts": serializer.data})
+
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
@@ -132,6 +146,7 @@ def publicPosts(request):
 		posts = Post.objects.filter(visibility='PUBLIC')
 		serializer = PostSerializer(posts, many=True)
 		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
 	elif request.method == 'POST':
 		#TODO - this is not working - should this even insert a post??
 		serializer = PostSerializer(data=request.data)
