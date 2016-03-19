@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'stream',
     'settings',
     'comments',
+    'nodes',
     'api',
     'rest_framework',
     'django.contrib.admin',

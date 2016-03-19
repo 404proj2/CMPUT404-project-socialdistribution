@@ -29,10 +29,14 @@ h3 {
   margin-top: 7%;
 
 
-.panel {
+.panel-padding {
 	margin-bottom: 8px !important;
 }
 
 .publish-date {
 	font-style: italic;
 	color: grey;
+}
+
+.btn-group {
+}
