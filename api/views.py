@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from posts.models import Post
 from comments.models import Comment
+from authors.models import LocalRelation, GlobalRelation
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
@@ -13,6 +14,7 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
+from django.db.models import Q
 
 #http://www.django-rest-framework.org/tutorial/1-serialization/
 #don't need this anymore
@@ -53,7 +55,16 @@ def queryFriends(request, uuid):
 @api_view(['GET'])
 def queryFriend2Friend(request, uuid1, uuid2):
 	'''ask if 2 authors are friends'''
-	return HttpResponse("hello")
+	#true if uuid1 and uuid2 are both in an entry in LocalRelation or GlobalRelation and relation_status = true
+	areFriends = False
+	localRelations = LocalRelation.objects.filter((Q(author1__author_id=uuid1) & Q(author2__author_id=uuid2) & Q(relation_status=True)) | (Q(author1__author_id=uuid2) & Q(author2__author_id=uuid1) & Q(relation_status=True)))
+	if not localRelations:
+		globalRelations = GlobalRelation.objects.filter((Q(local_author__author_id=uuid1) & Q(global_author__global_author_id=uuid2) & Q(relation_status=True)) | (Q(local_author__author_id=uuid2) & Q(global_author__global_author_id=uuid1) & Q(relation_status=True)))
+		if globalRelations:
+			areFriends = True
+	else:
+		areFriends = True
+	return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
 
 @api_view(['GET'])
 def getPosts(request):

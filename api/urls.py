@@ -4,8 +4,8 @@ from . import views
 urlpatterns = [
 	url(r'^$', views.index, name='test'),
 
-	url(r'^friends/(?P<uuid>[0-9a-z-]+)', views.queryFriends, name='queryFriends'),
 	url(r'^friends/(?P<uuid1>[0-9a-z-]+)/(?P<uuid2>[0-9a-z-]+)', views.queryFriend2Friend, name='queryFriend2Friend'),
+	url(r'^friends/(?P<uuid>[0-9a-z-]+)', views.queryFriends, name='queryFriends'),
 	url(r'^author/posts', views.getPosts, name='getPosts'),
 	url(r'^author/(?P<uuid>[0-9a-z-]+)', views.getProfile, name='getProfile'),
 	url(r'^posts/(?P<uuid>[0-9a-z-]+)/comments', views.comments, name='comments'),
