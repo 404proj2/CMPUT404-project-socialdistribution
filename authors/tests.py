@@ -130,3 +130,32 @@ class AuthorTestCase(TestCase):
 		# globalauthor2 added author1(therefor globalauthor2 is following author1)
 		GlobalRelation.objects.create(local_author=author1, global_author=globalauthor1, relation_status=1)
 		self.assertEqual(author1.getAllPendingFriendRequestsRecieved(), [ author2, author3, globalauthor1 ])
+
+
+	def testFOAF(self):
+		localusr1 = User.objects.create(username='localusr1', password='top_secret')
+		author1 = Author.objects.create(user=localusr1)
+
+		localusr2 = User.objects.create(username='localusr2', password='top_secret')
+		author2 = Author.objects.create(user=localusr2)
+
+		localusr3 = User.objects.create(username='localusr3', password='top_secret')
+		author3 = Author.objects.create(user=localusr3)
+
+		# author1 is friends with author2
+		LocalRelation.objects.create(author1=author1, author2=author2, relation_status=True)
+
+		# author2 is friends with author3
+		LocalRelation.objects.create(author1=author2, author2=author3, relation_status=True)
+
+		self.assertEqual(author1.isFOAF(author3, False), True)
+
+		# globalauthor1 = GlobalAuthor.objects.create(global_author_name='globalusr1', host='somehost')
+
+		# # author1 is friends with author3
+		# GlobalRelation.objects.create(local_author=author1, global_author=author3, relation_status=2)
+
+		# # globalauthor1 is friends with author3
+		# GlobalRelation.objects.create(local_author=author3, global_author=globalauthor1, relation_status=2)
+
+		# self.assertEqual(author1.isFOAF(globalauthor1, True), True)
