@@ -51,6 +51,34 @@ class Author(models.Model):
 
 		return globalFriends
 
+	def isFOAF(self, authorObj, isGlobal=False):
+		result = False
+
+		localFriends = self.getLocalFriends()
+		globalFriends = self.getGlobalFriends()
+
+		if isGlobal:
+			# TODO: Need to access a server to obtain global friend's friends
+			# before comparing.
+			if len(globalFriends) > 0:
+				uuid = authorObj.global_author_id
+				globalFriendIDs = [g.global_author_id for g in globalFriends]
+
+				if len(globalFriendIDs) > 0:
+					result = True # common friend(s) exists
+				else:
+					result = False
+		else:
+			if len(localFriends) > 0:
+				authorObjLocalFriends = authorObj.getLocalFriends()
+
+				# http://stackoverflow.com/questions/3170055/test-if-lists-share-any-items-in-python 2016-03-18
+				if (set(authorObjLocalFriends) & set(localFriends)):
+					result = True
+
+		return result
+
+
 	# Get all friend requests sent by current user (includes local and global)
 	def getAllPendingFriendRequestsSent(self):
 		
