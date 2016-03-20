@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
 from comments.models import Comment
 from posts.serializers import PostSerializer
@@ -13,6 +14,8 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
+import sys
+from django.db.models import Q
 
 #http://www.django-rest-framework.org/tutorial/1-serialization/
 #don't need this anymore
@@ -156,4 +159,66 @@ def comments(request, uuid):
 @api_view(['POST'])
 def friendRequest(request):
 	'''Make a friend request'''
+	if request.method == 'POST':
+		print 'LOCAL AUTHORS READ 1'
+		
+		author_id = request.data['author']['id']
+		print author_id
+
+		friend_id = request.data['friend']['id']
+		print friend_id
+
+		authorObj = None
+		friendObj = None
+		try:
+			authorObj = Author.objects.get(author_id=author_id)
+			print 'AUTHOR: '
+			print authorObj.user
+		except:
+			authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+			print 'GLOBAL AUTHOR: '
+			print authorObj.global_author_name
+
+		try:
+			friendObj = Author.objects.get(author_id=friend_id)
+			print 'FRIEND: '
+			print friendObj.user
+		except:
+			friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+			print 'GLOBAL FRIEND: '
+			print friendObj.global_author_name
+
+		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
+			print 'both are local, check for existing relationship'
+			print authorObj
+			print friendObj
+			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
+
+			if localRelations:
+				print localRelations
+			else:
+				localRelations = []
+
+			if len(localRelations) > 0:
+				print(len(localRelations))
+				# We're assuming author is adding friend so check if author1 != authorObj in order to become friends, otherwise stay following.
+				update_local = localRelations[0]
+
+				if update_local.author1 == friendObj and relation_status == False:
+					print 'fffffff'
+					update_local.relation_status = True
+					update_local.save()
+					print 'FOLLOW RELATIONSHIP UPDATED!'
+				else:
+					print 'FRIENDSHIP ALREADY EXISTS!'
+			else:
+				# Create a local relationship
+				LocalRelation.objects.create(author1=authorObj, author2=friendObj, relation_status=False)
+				print 'NEW FOLLOW RELATIONSHIP CREATED!'
+		else:
+			print 'WTF'
+
+
+		return Response(request.data)
+
 	return HttpResponse("hello")
