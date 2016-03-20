@@ -48,33 +48,76 @@ def index(request):
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-''' 
-	URL: api/friends/<authorid>
-	GET: return boolean if {userid} and authenticated user are friends 
-		response:
-			responds with: 
-			{
-				"query":"friends",
-				# Array of Author UUIDs
-				"authors":[
-					"de305d54-75b4-431b-adb2-eb6b9e546013",
-					"ae345d54-75b4-431b-adb2-fb6b9e547891"
-				],
-				# boolean true or false
-				"friends": true
-			}
-	POST: 
-'''
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def queryFriends(request, uuid):
 	'''GET returns friends of author_id'''
-	try:
-		author = Author.objects.get(author_id=uuid)
-	except:
-		return Response(status=status.HTTP_404_NOT_FOUND)
-	friends = author.getLocalFriends()
-	#TODO - need to get global friends and concatenate querysets and return
+	# a reponse if friends or not
+	# ask a service GET http://service/friends/<authorid>
+	if request.method == 'GET':
+		try:
+			author = Author.objects.get(author_id=uuid)
+		except:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+
+		# get local and global friends based on specified uuid
+		local_friends = author.getLocalFriends()
+		global_friends = author.getGlobalFriends()
+
+		# append all local and global author ids to a list
+		friends = []
+		for friend in local_friends:
+				friends.append(friend.author_id)
+		for friend in global_friends:
+				friends.append(friend.global_author_id)
+
+		# create expected response object
+		response = {
+			"query":"friends",
+			"authors": friends
+		}
+
+		# return response
+		return Response(response, status=status.HTTP_200_OK)
+
+	# ask a service if anyone in the list is a friend
+	# POST to http://service/friends/<authorid>
+	elif request.method == 'POST':
+		author = None
+		try:
+			author = Author.objects.get(author_id=uuid)
+		except:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+
+		author_list = request.data['authors']
+
+		# get local and global friends based on specified uuid
+		local_friends = author.getLocalFriends()
+		global_friends = author.getGlobalFriends()
+
+		friends = []
+
+		for auth in author_list:
+
+			# check in local friends list to compare and add matching IDs to friends list
+			for friend in local_friends:
+				if friend.author_id == auth:
+					friends.append(auth)
+
+			# check in global friends list to compare and add matching IDs to friends list
+			for friend in global_friends:
+				if friend.global_author_id == auth:
+					friends.append(auth)
+
+		# create expected response object
+		response = {
+			"query":"friends",
+			"author":uuid,
+			"authors": friends
+		}
+
+		# return response
+		return Response(response, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def queryFriend2Friend(request, uuid1, uuid2):
@@ -374,6 +417,8 @@ def friendRequest(request):
 
 		authorObj = None
 		friendObj = None
+
+		# Try to get an author/ global author object based on given IDs (author_id, friend_id) for authorObj
 		try:
 			authorObj = Author.objects.get(author_id=author_id)
 			print 'AUTHOR: '
@@ -383,6 +428,7 @@ def friendRequest(request):
 			print 'GLOBAL AUTHOR: '
 			print authorObj.global_author_name
 
+		# Try to get an author/ global author object based on given IDs (author_id, friend_id) for friendObj
 		try:
 			friendObj = Author.objects.get(author_id=friend_id)
 			print 'FRIEND: '
@@ -394,8 +440,6 @@ def friendRequest(request):
 
 		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
 			print 'both are local, check for existing relationship'
-			print authorObj
-			print friendObj
 			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
 
 			if localRelations:
@@ -408,24 +452,95 @@ def friendRequest(request):
 				# We're assuming author is adding friend so check if author1 != authorObj in order to become friends, otherwise stay following.
 				update_local = localRelations[0]
 
-				if update_local.author1 == friendObj and relation_status == False:
-					print 'fffffff'
+				print update_local.author1
+				print update_local.author2
+
+				if update_local.author1 == friendObj and update_local.author2 == authorObj and update_local.relation_status == False:
 					update_local.relation_status = True
 					update_local.save()
-					print 'FOLLOW RELATIONSHIP UPDATED!'
+					print 'FOLLOW RELATIONSHIP UPDATED - NOW FRIENDS!'
 				else:
 					print 'FRIENDSHIP ALREADY EXISTS!'
 			else:
 				# Create a local relationship
 				LocalRelation.objects.create(author1=authorObj, author2=friendObj, relation_status=False)
 				print 'NEW FOLLOW RELATIONSHIP CREATED!'
-		else:
-			print 'WTF'
+		elif (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'GlobalAuthor'):
+			print 'local wants to add global'
 
+			globalRelations = GlobalRelation.objects.filter(Q(local_author=authorObj))
+
+			if globalRelations:
+				print globalRelations
+			else:
+				globalRelations = []
+
+			if len(globalRelations) > 0:
+				print 'global relation exists.'
+
+				update_global = globalRelations[0]
+
+				print update_global.local_author
+				print update_global.global_author
+				print update_global.relation_status
+
+				if (update_global.relation_status == '1'): # global author is following local author
+					# Therefore global already following local, so now they can be friends.
+					update_global.relation_status = 2
+				 	update_global.save()
+				 	print 'NOW FRIENDS!'
+
+				elif (update_global.relation_status == '2'): # friends
+					print 'ALREADY FRIENDS!'
+
+				elif (update_global.relation_status == '0'): # local author is following global author
+					print 'LOCAL ALREADY FOLLOWING GLOBAL!'
+
+			else:
+				# Create global relationship where remote adds local
+				GlobalRelation.objects.create(local_author=friendObj, global_author=authorObj, relation_status=1)
+				print 'NEW GLOBAL RELATION ADDED'
+
+		elif (authorObj.getClassName() == 'GlobalAuthor') and (friendObj.getClassName() == 'Author'):
+			print 'global wants to add local'
+
+			globalRelations = GlobalRelation.objects.filter(Q(local_author=friendObj))
+
+			if globalRelations:
+				print globalRelations
+			else:
+				globalRelations = []
+
+			if len(globalRelations) > 0:
+				print 'global relation exists.'
+
+				update_global = globalRelations[0]
+
+				print update_global.local_author
+				print update_global.global_author
+				print update_global.relation_status
+
+				if (update_global.relation_status == '0'):
+					# Therefore local already following global, so now they can be friends.
+					update_global.relation_status = 2
+					update_global.save()
+					print 'NOW FRIENDS!'
+
+				elif (update_global.relation_status == '2'):
+					print 'ALREADY FRIENDS!'
+
+				elif (update_global.relation_status == '1'):
+					print 'GLOBAL ALREADY FOLLOWING LOCAL!'
+
+			else:
+				# Create global relationship where remote adds local
+				GlobalRelation.objects.create(local_author=friendObj, global_author=authorObj, relation_status=1)
+				print 'NEW GLOBAL RELATION ADDED'
+				return Response(request.data, status=status.HTTP_201_CREATED)
 
 		return Response(request.data)
 
-	return HttpResponse("hello")
+	return Response("Friend request cannot be processed.", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def allAuthors(request):
