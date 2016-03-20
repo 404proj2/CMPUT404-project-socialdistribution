@@ -224,8 +224,6 @@ def friendRequest(request):
 
 		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
 			print 'both are local, check for existing relationship'
-			print authorObj
-			print friendObj
 			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
 
 			if localRelations:
@@ -238,20 +236,91 @@ def friendRequest(request):
 				# We're assuming author is adding friend so check if author1 != authorObj in order to become friends, otherwise stay following.
 				update_local = localRelations[0]
 
-				if update_local.author1 == friendObj and relation_status == False:
-					print 'fffffff'
+				print update_local.author1
+				print update_local.author2
+
+				if update_local.author1 == friendObj and update_local.author2 == authorObj and update_local.relation_status == False:
 					update_local.relation_status = True
 					update_local.save()
-					print 'FOLLOW RELATIONSHIP UPDATED!'
+					print 'FOLLOW RELATIONSHIP UPDATED - NOW FRIENDS!'
 				else:
 					print 'FRIENDSHIP ALREADY EXISTS!'
 			else:
 				# Create a local relationship
 				LocalRelation.objects.create(author1=authorObj, author2=friendObj, relation_status=False)
 				print 'NEW FOLLOW RELATIONSHIP CREATED!'
-		else:
-			print 'WTF'
+		elif (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'GlobalAuthor'):
+			print 'local wants to add global'
 
+			globalRelations = GlobalRelation.objects.filter(Q(local_author=authorObj))
+
+			if globalRelations:
+				print globalRelations
+			else:
+				globalRelations = []
+
+			if len(globalRelations) > 0:
+				print 'global relation exists.'
+
+				update_global = globalRelations[0]
+
+				print update_global.local_author
+				print update_global.global_author
+				print update_global.relation_status
+
+				if (update_global.relation_status == '1'):
+					# Therefore global already following local, so now they can be friends.
+					update_global.relation_status = 2
+				 	update_global.save()
+				 	print 'NOW FRIENDS!'
+
+				elif (update_global.relation_status == '2'):
+					print 'ALREADY FRIENDS!'
+
+				elif (update_global.relation_status == '0'):
+					print 'LOCAL ALREADY FOLLOWING GLOBAL!'
+
+			else:
+				# Create global relationship where remote adds local
+				GlobalRelation.objects.create(local_author=friendObj, global_author=authorObj, relation_status=1)
+				print 'NEW GLOBAL RELATION ADDED'
+
+		elif (authorObj.getClassName() == 'GlobalAuthor') and (friendObj.getClassName() == 'Author'):
+			print 'global wants to add local'
+
+			globalRelations = GlobalRelation.objects.filter(Q(local_author=friendObj))
+
+			if globalRelations:
+				print globalRelations
+			else:
+				globalRelations = []
+
+			if len(globalRelations) > 0:
+				print 'global relation exists.'
+
+				update_global = globalRelations[0]
+
+				print update_global.local_author
+				print update_global.global_author
+				print update_global.relation_status
+
+				if (update_global.relation_status == '0'):
+					# Therefore local already following global, so now they can be friends.
+					update_global.relation_status = 2
+					update_global.save()
+					print 'NOW FRIENDS!'
+
+				elif (update_global.relation_status == '2'):
+					print 'ALREADY FRIENDS!'
+
+				elif (update_global.relation_status == '1'):
+					print 'GLOBAL ALREADY FOLLOWING LOCAL!'
+
+			else:
+				# Create global relationship where remote adds local
+				GlobalRelation.objects.create(local_author=friendObj, global_author=authorObj, relation_status=1)
+				print 'NEW GLOBAL RELATION ADDED'
+				return Response(request.data, status=status.HTTP_201_CREATED)
 
 		return Response(request.data)
 
