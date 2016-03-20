@@ -256,6 +256,11 @@ def publicPosts(request):
 	# Get all local and global comments, combine and paginate results
 	all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
 
+	#num_comments = len(all_posts[0]['comments'])
+
+	#print 'Comments: '
+	#print num_comments
+
 	# Need this here or else the pagination bitches about it being unicode
 	page_num = int(page_num)
 
