@@ -4,7 +4,7 @@ from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
 from comments.models import Comment, GlobalComment
 from authors.models import Author, GlobalAuthor
-from authors.serializers import AuthorRequestSerializer
+from authors.serializers import AuthorRequestSerializer, FriendSerializer
 from authors.models import LocalRelation, GlobalRelation
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
@@ -101,7 +101,15 @@ def authorPost(request, uuid):
 		#if queryID == uuid then they can see their private posts
 		if queryID == uuid:
 			private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
-		#not done
+		#get all friends, get posts that are FRIENDS or FOAF
+
+
+		#get all FOAF, get all posts that are FOAF
+		#if a local user, get all SERVERONLY from friends
+		user = Author.objects.get(author_id=uuid)
+		if user:
+			#then is local user and need all SERVERONLY posts from their friends
+			print "hi"
 		foaf_posts = Post.objects.filter(Q(visibility="FOAF"))
 		serializer = PostSerializer(posts, many=True)
 		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
@@ -321,3 +329,11 @@ def friendRequest(request):
 		return Response(request.data)
 
 	return HttpResponse("hello")
+
+@api_view(['GET'])
+def allAuthors(request):
+	'''returns all local users on this node'''
+	if request.method == 'GET':
+		authors = Author.objects.all()
+		serializer = FriendSerializer(authors, many=True)
+		return Response({"authors": serializer.data})
