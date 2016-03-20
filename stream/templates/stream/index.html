@@ -136,6 +136,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </div>
 
 <!-- Stream -->
+    {% for error in errors %}
+    <div class="alert alert-warning fade in">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>Warning!</strong> {{ error }}
+    </div>
+    {% endfor %}
     <div class="panel-group">
       <!-- Post -->
 
@@ -144,7 +150,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <div class="panel panel-padding panel-default" style='margin-bottom: 16px;'>
         <div class="panel-heading clearfix">
           <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.author|title }}</h4>
-          <span> - {{ post.server }} </span>
           <div class="btn-group pull-right">
             <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal-{{ post.post_id }}"><span class="glyphicon glyphicon-comment"></span> Comment</a>
             {% if current_author == post.author %}
@@ -157,6 +162,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
           </div>
         </div>
         <div class="panel-body">
+        <p class="label label-success label-as-badge text-center pull-right" style='padding: 6px; font-size: 0.85em ; '>{{ post.server }}</span></p>
           <h4>{{ post.title|title }}</h4>
           <p class='publish-date'>{{ post.published }}</p>
           <p> {{ post.content }}</p>

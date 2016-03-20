@@ -38,40 +38,33 @@ def getExternalPosts():
 	nodes = Node.objects.all()
 	postConv = PostConverter()
 	posts = []
+	errors = []
 
 	for n in nodes:
 		url = n.node_url + 'posts/'
-		sd = urllib2.urlopen(url).read()
-		
-		stream = BytesIO(sd)
-		data = JSONParser().parse(stream)
+		req = urllib2.Request(url)
+		basic_auth_token = 'Basic ' + n.basic_auth_token
+		req.add_header('Authorization', basic_auth_token)
+		try:
+			sd = urllib2.urlopen(req).read()
+			#sd = urllib2.urlopen(url).read()
+			
+			stream = BytesIO(sd)
+			data = JSONParser().parse(stream)
 
-		#print sd
+			serializer = PostsDeserializer(data=data)
 
-		serializer = PostsDeserializer(data=data)
+			serializer.is_valid()
+			
+			for p in serializer.data['posts']:
+				p['server'] = n.node_name
+				post = postConv.convert(p)
+				posts.append(post)
+		except Exception, exc_value:
+			msg = str('Posts could not be loaded from node \'' + n.node_name + '\'. ')
+			errors.append(msg)
 
-		serializer.is_valid()
-		
-		#deserialized = serializer.validated_data
-		#print 'Deserialized Data: '
-		#print serializer.data['posts'][0]
-		#print serializer.data['posts']
-		
-		for p in serializer.data['posts']:
-			p['server'] = 'Remote'
-			post = postConv.convert(p)
-			posts.append(post)
-
-
-		#deserialized = serializer.validated_data.items()[1]
-
-		#print deserialized
-
-		#for post in deserialized[1]:
-		#	p = convert(post)
-		#	posts.append(p)
-
-	return posts
+	return posts, errors
 
 def byDate(self, other):
 	return other.published > self.published
@@ -97,7 +90,7 @@ def index(request):
 		all_posts.append(post)
 	
 	# Get external posts
-	ext_posts = getExternalPosts()# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
+	ext_posts, errors = getExternalPosts()# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
 	for post in ext_posts:
 		print post.comments
 	#	post.server = "Remote"
@@ -121,6 +114,7 @@ def index(request):
 
 	context = dict()
 	context['current_author'] = author
+	context['errors'] = errors
 	context['posts'] = all_posts
 
 	return render(request,'stream/index.html', context)
