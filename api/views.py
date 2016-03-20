@@ -72,17 +72,28 @@ def queryFriend2Friend(request, uuid1, uuid2):
 @api_view(['GET'])
 def getPosts(request):
 	'''Get posts that are visible to current authenticated user'''
-	return HttpResponse("hello")
+	return HttpResponse("getPosts")
 
 @api_view(['GET'])
 def getProfile(request, uuid):
 	'''View an author's profile'''
-	return HttpResponse("hello")
+	return HttpResponse("getProfile")
 
 @api_view(['GET'])
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
-	return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+	if request.method == 'GET':
+		queryID = request.GET.get('id', False)
+		print("stupid: %s"%request.GET.get('id', False))
+		#need to get all posts uuid can see - PUBLIC, PRIVATE if made by them, posts of FOAF, posts of FRIENDS, posts for SERVERONLY
+		posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
+		#if queryID == uuid then they can see their private posts
+		if queryID == uuid:
+			private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
+		#not done
+		foaf_posts = Post.objects.filter(Q(visibility="FOAF"))
+		serializer = PostSerializer(posts, many=True)
+		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
