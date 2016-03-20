@@ -19,9 +19,7 @@ def index(request):
 
 def comment_new(request):
     if request.method == "POST":
-	print("at comment_new")
         form = CommentForm(data=request.POST)
-	print(form.errors)
         if form.is_valid():
             comment = form.save(commit=False)
             #comment.post=post

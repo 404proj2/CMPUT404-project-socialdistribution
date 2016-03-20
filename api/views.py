@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
-from comments.models import Comment
-from authors.models import Author
-from authors.serializers import AuthorRequestSerializer
+from comments.models import Comment, GlobalComment
+from authors.models import Author, GlobalAuthor
+from authors.serializers import AuthorRequestSerializer, FriendSerializer
 from authors.models import LocalRelation, GlobalRelation
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
@@ -17,23 +17,26 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
+from django.core.paginator import Paginator
 import sys
+from itertools import chain
+from operator import attrgetter
 from django.db.models import Q
+from django.conf import settings
 
-#http://www.django-rest-framework.org/tutorial/1-serialization/
-#don't need this anymore
-class JSONResponse(HttpResponse):
-    """
-    An HttpResponse that renders its content into JSON.
-    """
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs['content_type'] = 'application/json'
-        super(JSONResponse, self).__init__(content, **kwargs)
+# Default page size
+DEFAULT_PAGE_SIZE = 10
+# Maximum page size
+MAX_PAGE_SIZE = 100
+# Default page number
+DEFAULT_PAGE_NUM = 0
 
+# TODO: Change this to a static index page, don't return comments here
 @api_view(['GET','POST'])
 def index(request):
-	'''List all comments'''
+	#return render(request,'api/index.html')
+	''' List all comments '''
+	''' TODO: Why is this returning comments? '''
 	if request.method == 'GET':
 		comments = Comment.objects.all()
 		serializer = CommentSerializer(comments, many=True)
@@ -46,7 +49,24 @@ def index(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'POST'])
+''' 
+	URL: api/friends/<authorid>
+	GET: return boolean if {userid} and authenticated user are friends 
+		response:
+			responds with: 
+			{
+				"query":"friends",
+				# Array of Author UUIDs
+				"authors":[
+					"de305d54-75b4-431b-adb2-eb6b9e546013",
+					"ae345d54-75b4-431b-adb2-fb6b9e547891"
+				],
+				# boolean true or false
+				"friends": true
+			}
+	POST: 
+'''
+@api_view(['GET'])
 def queryFriends(request, uuid):
 	'''GET returns friends of author_id'''
 	try:
@@ -101,7 +121,15 @@ def authorPost(request, uuid):
 		#if queryID == uuid then they can see their private posts
 		if queryID == uuid:
 			private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
-		#not done
+		#get all friends, get posts that are FRIENDS or FOAF
+
+
+		#get all FOAF, get all posts that are FOAF
+		#if a local user, get all SERVERONLY from friends
+		user = Author.objects.get(author_id=uuid)
+		if user:
+			#then is local user and need all SERVERONLY posts from their friends
+			print "hi"
 		foaf_posts = Post.objects.filter(Q(visibility="FOAF"))
 		serializer = PostSerializer(posts, many=True)
 		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
@@ -177,18 +205,143 @@ def publicPosts(request):
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#done
-@api_view(['GET'])
+
+# TODO: Create, save, and return a new GlobalAuthor
+def createGlobalAuthor(author):
+	return none
+
+
+
+''' 
+------------
+| COMMENTS |
+------------
+
+GET:	
+	REQUEST:
+		api/posts/{post_id}/comments
+		api/posts/{post_id}/comments?page=4
+		api/posts/{post_id}/comments?page=4&size=40
+
+	RETURNS:
+		{
+    "count": 11,
+    "comments": [
+        {
+            "author": {
+                "id": "9251028c-71d2-45d1-98c6-d71b347148a3",
+                "host": "https://mighty-cliffs-82717.herokuapp.com/",
+                "displayName": "GlobAuth1",
+                "url": "http://www.cool-bears.com"
+            },
+            "comment": "Sick Olde English",
+            "contentType": "text/x-markdown",
+            "id": "920431e0-8bea-40df-a315-36ffe6be8c86",
+            "published": "2016-03-20T17:38:11.296Z"
+        }
+    ],
+    "next": "https://mighty-cliffs-82717.herokuapp.com/api/posts/f6f32a3b-0d3a-4e35-b229-06389271d7f4/comments?page=3&size=3",
+    "query": "comments",
+    "size": "1",
+    "previous": "https://mighty-cliffs-82717.herokuapp.com/api/posts/f6f32a3b-0d3a-4e35-b229-06389271d7f4/comments?page=1&size=3"
+}
+
+POST: 	
+	REQUEST:
+		api/api/posts/{post_id}/comments
+		{
+			"author": {
+		        "id": "9251028c-71d2-45d1-98c6-d71b347148a3",
+		        "host": "http://127.0.0.1:8000/",
+		        "displayName": "GlobAuth1",
+		        "url": "http://mike.ca",
+		        "github": ""
+		    },
+			"comment":"Sick Olde English",
+			"contentType":"text/x-markdown",
+			"published":"2015-03-09T13:07:04+00:00",
+			"id":"de305d54-75b4-431b-adb2-eb6b9e546013"
+		}
+
+	Returns:
+		RETURNS:
+			HTTP 201 Created
+		Failure:
+			HTTP 400 Bad Request
+'''
+@api_view(['GET', 'POST'])
 def comments(request, uuid):
-	'''Returns all the comments for this post id'''
-	try:
-		queryPost = Post.objects.get(post_id=uuid)
-	except:
-		return Response(status=status.HTTP_404_NOT_FOUND)
 	if request.method == 'GET':
-		comments = Comment.objects.filter(post=queryPost)
-		serializer = CommentSerializer(comments, many=True)
-		return Response({"query": "comments", "count": len(comments), "size": 50, "next": "", "previous": "", "comments": serializer.data})
+
+		# Does the post actually exist?
+		try:
+			p = Post.objects.get(post_id=uuid)
+		except:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+
+		# Default if not given
+		page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+		page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+		
+		# Get all local and global comments, combine and paginate results
+		local_comments = Comment.objects.filter(post=p)
+		global_comments = GlobalComment.objects.filter(post=p)
+
+		all_comments = sorted(
+	    	chain(local_comments, global_comments),
+	    	key=attrgetter('pub_date'))
+
+		# Need this here or else the pagination bitches about it being unicode
+		page_num = int(page_num)
+
+		# Get the right page
+		pages = Paginator(all_comments, page_size)
+		page = pages.page(page_num+1)
+		data = page.object_list
+
+		query = 'comments'
+		count = len(all_comments)
+		size = page_size
+
+		url = settings.LOCAL_HOST + 'api/posts/' + uuid + '/comments'
+
+		if page.has_next():
+			next = url + '?page=' + str(page_num + 1) + '&size=' + str(page_size)
+		else:
+			next = ''
+		if page.has_previous():
+			previous = url + '?page=' + str(page_num - 1) + '&size=' + str(page_size)
+		else:
+			previous = ''
+
+		serializer = CommentSerializer(data, many=True)
+		return Response({"query": 'comments', "count": count, "size": size, "next": next, "previous": previous, "comments": serializer.data}, status=status.HTTP_200_OK)
+		
+	elif request.method == 'POST':
+		try:
+			try:
+				# Get an existing global author
+				author = GlobalAuthor.objects.get(global_author_id=request.data['author']['id'])
+				print 'Found existing global author...'
+			except:
+				# Create a new global author
+				global_author_name = request.data['author']['displayName']
+				print 'Creating new global author'
+				url = request.data['author']['url']
+				host = request.data['author']['host']
+				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
+				author.save();
+
+			post = Post.objects.get(post_id=uuid)
+			comment = GlobalComment(author=author, post=post)
+			
+			comment.comment_text = request.data['comment']
+			comment.contentType = request.data['contentType']
+			comment.save()
+
+			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
+		except:
+			return Response("Comment not added, bad JSON format.", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def friendRequest(request):
@@ -325,3 +478,11 @@ def friendRequest(request):
 		return Response(request.data)
 
 	return HttpResponse("hello")
+
+@api_view(['GET'])
+def allAuthors(request):
+	'''returns all local users on this node'''
+	if request.method == 'GET':
+		authors = Author.objects.all()
+		serializer = FriendSerializer(authors, many=True)
+		return Response({"authors": serializer.data})
