@@ -5,7 +5,7 @@ from authors.models import Author
 from nodes.models import Node
 from posts.serializers import PostsDeserializer
 from comments.serializers import CommentSerializer
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
 from posts.models import Post
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -13,6 +13,8 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from posts.converter import PostConverter
+from itertools import chain
+from operator import attrgetter
 #from django.core import serializers
 
 import urllib2
@@ -85,7 +87,11 @@ def index(request):
 	int_posts = Post.objects.filter(published__lte=timezone.now()).order_by('-published')
 	for p in int_posts:
 		p.server = "Local"
-		p.comments = Comment.objects.filter(post=p.post_id)
+		local_comments = Comment.objects.filter(post=p.post_id)
+		global_comments = GlobalComment.objects.filter(post=p.post_id)
+		p.comments = sorted(
+	    chain(local_comments, global_comments),
+	    	key=attrgetter('pub_date'))
 
 	for post in int_posts:
 		all_posts.append(post)
@@ -95,9 +101,8 @@ def index(request):
 	for post in ext_posts:
 		print post.comments
 	#	post.server = "Remote"
-		all_posts.append(post)
 
-	print all_posts[0].comments
+	#print all_posts[0].comments
 	list.sort(all_posts)
 	
 	# Combine the two lists in chronological order

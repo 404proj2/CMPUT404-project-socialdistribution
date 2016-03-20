@@ -1,7 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from posts.models import Post
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
+from authors.models import GlobalAuthor
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
@@ -140,18 +141,83 @@ def publicPosts(request):
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#done
-@api_view(['GET'])
+
+# TODO: Create, save, and return a new GlobalAuthor
+def createGlobalAuthor(author):
+	return none
+
+@api_view(['GET', 'POST'])
 def comments(request, uuid):
-	'''Returns all the comments for this post id'''
-	try:
-		queryPost = Post.objects.get(post_id=uuid)
-	except:
-		return Response(status=status.HTTP_404_NOT_FOUND)
 	if request.method == 'GET':
-		comments = Comment.objects.filter(post=queryPost)
+		'''Returns all the comments for this post id'''
+		# TODO: This DOESNT WORK, never returns any comments
+		try:
+			queryPost = Post.objects.get(post_id=uuid)
+		except:
+			return Response(status=status.HTTP_404_NOT_FOUND)
+		comments = Comment.objects.filter(post=queryPost.post_id)
 		serializer = CommentSerializer(comments, many=True)
 		return Response({"query": "comments", "count": len(comments), "size": 50, "next": "", "previous": "", "comments": serializer.data})
+	elif request.method == 'POST':
+		#print "Raw Request Body: "
+		#print request.data
+		try:
+
+			try:
+				# Get an existing global author
+				author = GlobalAuthor.objects.get(global_author_id=request.data['author']['id'])
+				print 'Found existing global author...'
+			except:
+				# Create a new global author
+				global_author_name = request.data['author']['displayName']
+				print 'Creating new global author'
+				url = request.data['author']['url']
+				host = request.data['author']['host']
+				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
+				author.save();
+
+			if author == None:
+				# Global author doesn't exist, have to create one...
+				print 'No Author!'
+				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+
+			#print 'AUTHOR'
+			#print author
+			post = Post.objects.get(post_id=uuid)
+			#print 'POST'
+			#print post
+			comment = GlobalComment(author=author, post=post)
+			#print comment.author
+			#print comment.post
+			
+			comment.comment_text = request.data['comment']
+			comment.contentType = request.data['contentType']
+			print comment.author
+			print comment.post
+			print comment.comment_text
+			print comment.contentType
+
+			comment.save()
+			#data = serializers.serialize("json", comment, indent=4)
+			#comment.pub_date = timezone.now()
+	        #author = GlobalAuthor.objects.all()
+	        #print author
+	        # Associate to the correct author
+	        #if author:
+	        #	comment.author = author
+	        #else:
+	        #	createGlobalAuthor(request.data.author)
+	        
+	        # Associate to the correct post
+	        #post = Post.objects.get(post_id=postid)
+	        #comment.post = post
+
+	        # Save the comment
+	        #print comment.comment_text 
+	        #comment.save()
+			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
+		except:
+			return Response("Comment Not Added", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def friendRequest(request):
