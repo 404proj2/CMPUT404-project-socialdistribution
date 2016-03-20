@@ -36,7 +36,7 @@ class PostDeserializer(serializers.Serializer):
 
 class PostsDeserializer(serializers.Serializer):
     count = serializers.CharField(max_length=200, required=False)
-    posts = PostDeserializer(many=True)
+    posts = PostDeserializer()
     #next = serializers.CharField(max_length=200, required=False)
     query = serializers.CharField(max_length=200, required=False)
     size = serializers.CharField(max_length=200, required=False)

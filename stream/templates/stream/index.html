@@ -144,6 +144,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <div class="panel panel-padding panel-default" style='margin-bottom: 16px;'>
         <div class="panel-heading clearfix">
           <h4 class="panel-title pull-left" style="padding-top: 7.5px;"><span class="glyphicon glyphicon-user"></span> {{ post.author|title }}</h4>
+          <span> - {{ post.server }} </span>
           <div class="btn-group pull-right">
             <a href="#" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newCommentModal-{{ post.post_id }}"><span class="glyphicon glyphicon-comment"></span> Comment</a>
             {% if current_author == post.author %}
@@ -163,9 +164,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
           <!-- Comments -->
           <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge badge-success">{{ post.comments|length }}</span></button>
           <div id="comment-section-{{ post.post_id }}" class="collapse">
-            <!-- Comment -->
+            
            {% for comment in post.comments %}
-           <!--{% if comment.post.post_id == post.post_id %}-->
+           <!-- Comment -->
            <div class="panel panel-sm panel-default">
             <div class="panel-heading clearfix">
               <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> {{ comment.author|title }}</span>
@@ -177,9 +178,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
               <p>{{ comment.comment_text }}</p>
             </div>
           </div>
-          <!--{% endif %}-->
-          {% endfor %}
           <!-- End Comment -->
+          {% endfor %}
+          
         </div>
         <!-- End Comments -->
       </div>
