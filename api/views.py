@@ -1,8 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
 from comments.models import Comment, GlobalComment
-from authors.models import GlobalAuthor
+from authors.models import Author, GlobalAuthor
+from authors.serializers import AuthorRequestSerializer
+from authors.models import LocalRelation, GlobalRelation
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +17,8 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
+import sys
+from django.db.models import Q
 
 #http://www.django-rest-framework.org/tutorial/1-serialization/
 #don't need this anymore
@@ -54,22 +59,52 @@ def queryFriends(request, uuid):
 @api_view(['GET'])
 def queryFriend2Friend(request, uuid1, uuid2):
 	'''ask if 2 authors are friends'''
-	return HttpResponse("hello")
+	if request.method == 'GET':
+		#true if uuid1 and uuid2 are both in an entry in LocalRelation or GlobalRelation and relation_status = true
+		areFriends = False
+		localRelations = LocalRelation.objects.filter((Q(author1__author_id=uuid1) & Q(author2__author_id=uuid2) & Q(relation_status=True)) | (Q(author1__author_id=uuid2) & Q(author2__author_id=uuid1) & Q(relation_status=True)))
+		if not localRelations:
+			globalRelations = GlobalRelation.objects.filter((Q(local_author__author_id=uuid1) & Q(global_author__global_author_id=uuid2) & Q(relation_status=True)) | (Q(local_author__author_id=uuid2) & Q(global_author__global_author_id=uuid1) & Q(relation_status=True)))
+			if globalRelations:
+				areFriends = True
+		else:
+			areFriends = True
+		return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
 
 @api_view(['GET'])
 def getPosts(request):
 	'''Get posts that are visible to current authenticated user'''
-	return HttpResponse("hello")
+	return HttpResponse("getPosts")
 
 @api_view(['GET'])
 def getProfile(request, uuid):
-	'''View an author's profile'''
-	return HttpResponse("hello")
+	#View an authors profile
+	#try:
+	queryAuthor = Author.objects.get(author_id= uuid)
+	print(queryAuthor)
+	#except:
+		#return Response(status=status.HTTP_404_NOT_FOUND)
+	if request.method == 'GET':
+		queryAuthor = Author.objects.get(author_id=uuid)
+		serializer = AuthorRequestSerializer(queryAuthor)
+		print serializer.data
+		return Response(serializer.data)
 
 @api_view(['GET'])
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
-	return HttpResponse("hello")
+	if request.method == 'GET':
+		queryID = request.GET.get('id', False)
+		print("stupid: %s"%request.GET.get('id', False))
+		#need to get all posts uuid can see - PUBLIC, PRIVATE if made by them, posts of FOAF, posts of FRIENDS, posts for SERVERONLY
+		posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
+		#if queryID == uuid then they can see their private posts
+		if queryID == uuid:
+			private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
+		#not done
+		foaf_posts = Post.objects.filter(Q(visibility="FOAF"))
+		serializer = PostSerializer(posts, many=True)
+		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
@@ -133,6 +168,7 @@ def publicPosts(request):
 		posts = Post.objects.filter(visibility='PUBLIC')
 		serializer = PostSerializer(posts, many=True)
 		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
 	elif request.method == 'POST':
 		#TODO - this is not working - should this even insert a post??
 		serializer = PostSerializer(data=request.data)
@@ -222,4 +258,66 @@ def comments(request, uuid):
 @api_view(['POST'])
 def friendRequest(request):
 	'''Make a friend request'''
+	if request.method == 'POST':
+		print 'LOCAL AUTHORS READ 1'
+		
+		author_id = request.data['author']['id']
+		print author_id
+
+		friend_id = request.data['friend']['id']
+		print friend_id
+
+		authorObj = None
+		friendObj = None
+		try:
+			authorObj = Author.objects.get(author_id=author_id)
+			print 'AUTHOR: '
+			print authorObj.user
+		except:
+			authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+			print 'GLOBAL AUTHOR: '
+			print authorObj.global_author_name
+
+		try:
+			friendObj = Author.objects.get(author_id=friend_id)
+			print 'FRIEND: '
+			print friendObj.user
+		except:
+			friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+			print 'GLOBAL FRIEND: '
+			print friendObj.global_author_name
+
+		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
+			print 'both are local, check for existing relationship'
+			print authorObj
+			print friendObj
+			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
+
+			if localRelations:
+				print localRelations
+			else:
+				localRelations = []
+
+			if len(localRelations) > 0:
+				print(len(localRelations))
+				# We're assuming author is adding friend so check if author1 != authorObj in order to become friends, otherwise stay following.
+				update_local = localRelations[0]
+
+				if update_local.author1 == friendObj and relation_status == False:
+					print 'fffffff'
+					update_local.relation_status = True
+					update_local.save()
+					print 'FOLLOW RELATIONSHIP UPDATED!'
+				else:
+					print 'FRIENDSHIP ALREADY EXISTS!'
+			else:
+				# Create a local relationship
+				LocalRelation.objects.create(author1=authorObj, author2=friendObj, relation_status=False)
+				print 'NEW FOLLOW RELATIONSHIP CREATED!'
+		else:
+			print 'WTF'
+
+
+		return Response(request.data)
+
 	return HttpResponse("hello")
