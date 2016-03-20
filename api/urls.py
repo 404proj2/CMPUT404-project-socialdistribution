@@ -15,4 +15,5 @@ urlpatterns = [
 	url(r'^posts/(?P<uuid>[0-9a-z-]+)', views.singlePost, name='singlePost'),
 	url(r'^posts', views.publicPosts, name='publicPosts'),
 	url(r'^friendrequest', views.friendRequest, name='friendRequest'),
+	url(r'^authors', views.allAuthors, name='allAuthors'),
 ]
