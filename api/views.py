@@ -23,7 +23,10 @@ from itertools import chain
 from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
+
+
 import itertools
+
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -137,8 +140,16 @@ def queryFriend2Friend(request, uuid1, uuid2):
 
 @api_view(['GET'])
 def getPosts(request):
-	'''Get posts that are visible to current authenticated user'''
-	return HttpResponse("getPosts")
+	queryID = request.GET.get('id', False)
+	print("stupid: %s"%request.GET.get('id', False))
+	author = Author.objects.get(user=request.user)
+	posts = Post.objects.filter(visibility="PUBLIC")
+	print "go here"
+	print "is it even going there???"
+	friends_posts = Post.objects.filter(visibility="FRIENDS")
+	posts_new = friends_posts | posts
+	serializer = PostSerializer(posts_new, many=True)
+	return Response(serializer.data)
 
 @api_view(['GET'])
 def getProfile(request, uuid):
