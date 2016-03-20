@@ -1,5 +1,7 @@
 from django.conf.urls import url
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 #[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} taken from http://stackoverflow.com/questions/136505/searching-for-uuids-in-text-with-regex
 urlpatterns = [
 	url(r'^$', views.index, name='test'),
