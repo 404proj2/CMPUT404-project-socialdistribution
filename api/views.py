@@ -3,6 +3,8 @@ from django.shortcuts import render
 from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
 from comments.models import Comment
+from authors.models import Author
+from authors.serializers import AuthorRequestSerializer
 from authors.models import LocalRelation, GlobalRelation
 from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
@@ -76,8 +78,17 @@ def getPosts(request):
 
 @api_view(['GET'])
 def getProfile(request, uuid):
-	'''View an author's profile'''
-	return HttpResponse("getProfile")
+	#View an authors profile
+	#try:
+	queryAuthor = Author.objects.get(author_id= uuid)
+	print(queryAuthor)
+	#except:
+		#return Response(status=status.HTTP_404_NOT_FOUND)
+	if request.method == 'GET':
+		queryAuthor = Author.objects.get(author_id=uuid)
+		serializer = AuthorRequestSerializer(queryAuthor)
+		print serializer.data
+		return Response(serializer.data)
 
 @api_view(['GET'])
 def authorPost(request, uuid):
@@ -157,6 +168,7 @@ def publicPosts(request):
 		posts = Post.objects.filter(visibility='PUBLIC')
 		serializer = PostSerializer(posts, many=True)
 		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
 	elif request.method == 'POST':
 		#TODO - this is not working - should this even insert a post??
 		serializer = PostSerializer(data=request.data)
