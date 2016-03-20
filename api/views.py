@@ -55,16 +55,17 @@ def queryFriends(request, uuid):
 @api_view(['GET'])
 def queryFriend2Friend(request, uuid1, uuid2):
 	'''ask if 2 authors are friends'''
-	#true if uuid1 and uuid2 are both in an entry in LocalRelation or GlobalRelation and relation_status = true
-	areFriends = False
-	localRelations = LocalRelation.objects.filter((Q(author1__author_id=uuid1) & Q(author2__author_id=uuid2) & Q(relation_status=True)) | (Q(author1__author_id=uuid2) & Q(author2__author_id=uuid1) & Q(relation_status=True)))
-	if not localRelations:
-		globalRelations = GlobalRelation.objects.filter((Q(local_author__author_id=uuid1) & Q(global_author__global_author_id=uuid2) & Q(relation_status=True)) | (Q(local_author__author_id=uuid2) & Q(global_author__global_author_id=uuid1) & Q(relation_status=True)))
-		if globalRelations:
+	if request.method == 'GET':
+		#true if uuid1 and uuid2 are both in an entry in LocalRelation or GlobalRelation and relation_status = true
+		areFriends = False
+		localRelations = LocalRelation.objects.filter((Q(author1__author_id=uuid1) & Q(author2__author_id=uuid2) & Q(relation_status=True)) | (Q(author1__author_id=uuid2) & Q(author2__author_id=uuid1) & Q(relation_status=True)))
+		if not localRelations:
+			globalRelations = GlobalRelation.objects.filter((Q(local_author__author_id=uuid1) & Q(global_author__global_author_id=uuid2) & Q(relation_status=True)) | (Q(local_author__author_id=uuid2) & Q(global_author__global_author_id=uuid1) & Q(relation_status=True)))
+			if globalRelations:
+				areFriends = True
+		else:
 			areFriends = True
-	else:
-		areFriends = True
-	return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
+		return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
 
 @api_view(['GET'])
 def getPosts(request):
@@ -79,7 +80,7 @@ def getProfile(request, uuid):
 @api_view(['GET'])
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
-	return HttpResponse("hello")
+	return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
