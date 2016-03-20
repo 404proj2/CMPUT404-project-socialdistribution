@@ -299,6 +299,9 @@ def publicPosts(request):
 	# Get all local and global comments, combine and paginate results
 	all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
 
+	for post in all_posts:
+		print post.comments
+
 	#num_comments = len(all_posts[0]['comments'])
 
 	#print 'Comments: '
