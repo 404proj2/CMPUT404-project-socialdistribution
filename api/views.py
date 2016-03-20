@@ -23,6 +23,7 @@ from itertools import chain
 from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
+import itertools
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -162,16 +163,13 @@ def authorPost(request, uuid):
 		queryID = request.GET.get('id', False)
 		if queryID:
 			#need to get all posts uuid can see - PUBLIC, PRIVATE if made by them, posts of FOAF, posts of FRIENDS, posts for SERVERONLY
-			public_posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
+			posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
 			#if queryID == uuid then they can see their private posts
 			if queryID == uuid:
 				private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
-				print("private:")
-				print(private_posts)
+				posts = itertools.chain(posts, private_posts)
 			user = Author.objects.get(author_id=uuid)
-			print("query user: %s"%user)
 			if user:
-				print "hi local user"
 				#then they are a local user, need to check if user and uuid are friends, then can return FRIENDS and FOAF posts
 				global_friend = GlobalRelation.objects.filter(Q(local_author__author_id=uuid) & Q(global_author__global_author_id=queryID) & Q(relation_status='2'))
 				local_friend = LocalRelation.objects.filter((Q(author1__author_id=uuid) & Q(author2__author_id=queryID) & Q(relation_status=True)) | (Q(author1__author_id=queryID) & Q(author2__author_id=uuid) & Q(relation_status=True)))
@@ -182,14 +180,17 @@ def authorPost(request, uuid):
 				if global_friend or local_friend:
 					#then uuid and queryID are friends, can return all FRIENDS and FOAF posts
 					friend_posts = Post.objects.filter(Q(visibility="FRIENDS") | Q(visibility="FOAF") & Q(author__author_id=uuid))
-					print("friends:")
-					print(friend_posts)
-			print("public:")
-			print(public_posts)
+					posts = itertools.chain(posts, friend_posts)
+				#if queryID user is also local, then can see all SERVERONLY if they are friends
+				queryIDuser = Author.objects.get(author_id=queryID)
+				if queryIDuser and local_friend:
+					server_posts = Post.objects.filter(Q(visibility="SERVERONLY") & Q(author__author_id=uuid))
+					posts = itertools.chain(posts, server_posts)
+			allPosts = list(posts)
 			#get all FOAF, get all posts that are FOAF
 			#if a local user, get all SERVERONLY from friends
-			serializer = PostSerializer(public_posts, many=True)
-			return Response({"query": "posts", "count": len(public_posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+			serializer = PostSerializer(allPosts, many=True)
+			return Response({"query": "posts", "count": len(allPosts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 		else:
 			#not given a queryID - bad request
 			return HttpResponseBadRequest("Need to give id in url: ?id=<author_id>")
