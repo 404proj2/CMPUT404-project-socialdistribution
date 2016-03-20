@@ -184,27 +184,100 @@ def singlePost(request, uuid):
 		return HttpResponse("hello")
 	
 
-#http://www.django-rest-framework.org/tutorial/1-serialization/
-#http://www.django-rest-framework.org/tutorial/2-requests-and-responses/
-#TODO: size needs to be set, also paging
-#TODO: POST should insert post?
-#get is done
-@api_view(['GET', 'POST'])
+''' 
+---------
+| POSTS |
+---------
+
+GET:	
+	** must be sorted newest to oldest
+	REQUEST:
+		api/posts/
+		api/posts/?page=4
+		api/posts/?page=4&size=40
+
+	RETURNS:
+		{
+			"query": "posts",
+			"count": 1023,
+			"size": 50,
+			"next": "http://service/author/posts?page=5",
+			"previous": "http://service/author/posts?page=3",
+			"posts":[
+				{
+					"title":"A post title about a post about web dev",
+					"source":"http://lastplaceigotthisfrom.com/post/yyyyy",
+					"origin":"http://whereitcamefrom.com/post/zzzzz",
+					"description":"This post discusses stuff -- brief",
+					"contentType":"text/plain",
+					"content": "This is the content",
+					"author":{
+						"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+						"host":"http://127.0.0.1:5454/",
+						"displayName":"Lara Croft",
+						"url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+						"github": "http://github.com/laracroft"
+					},
+					"categories":["web","tutorial"],
+					"count": 1023,
+					"size": 50,
+					"next": "http://service/posts/{post_id}/comments",
+					"comments":[
+						{
+							"author":{
+								"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+								"host":"http://127.0.0.1:5454/",
+								"displayName":"Greg Johnson",
+								"url":"http://127.0.0.1:5454/author/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+								"github": "http://github.com/gjohnson"
+							},
+							"comment":"Sick Olde English",
+							"contentType":"text/x-markdown",
+							"published":"2015-03-09T13:07:04+00:00",
+							"id":"de305d54-75b4-431b-adb2-eb6b9e546013"
+						}
+					]
+					"published":"2015-03-09T13:07:04+00:00",
+					"id":"de305d54-75b4-431b-adb2-eb6b9e546013",
+					"visibility":"PUBLIC"
+				}
+			]
+		}
+'''
+# http://www.django-rest-framework.org/tutorial/1-serialization/
+# http://www.django-rest-framework.org/tutorial/2-requests-and-responses/
+@api_view(['GET'])
 def publicPosts(request):
-	'''List all public posts on the server'''
-	if request.method == 'GET':
-		posts = Post.objects.filter(visibility='PUBLIC')
-		serializer = PostSerializer(posts, many=True)
-		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
-	elif request.method == 'POST':
-		#TODO - this is not working - should this even insert a post??
-		serializer = PostSerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	# Default if not given
+	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+	page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+	
+	# Get all local and global comments, combine and paginate results
+	all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
 
+	# Need this here or else the pagination bitches about it being unicode
+	page_num = int(page_num)
+
+	# Get the right page
+	pages = Paginator(all_posts, page_size)
+	page = pages.page(page_num+1)
+	data = page.object_list
+
+	response_obj = {}
+	response_obj['query'] = 'posts'
+	response_obj['count'] = len(all_posts)
+	response_obj['size'] = page_size
+
+	if page.has_next():
+		response_obj['next'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num + 1) + '&size=' + str(page_size)
+	if page.has_previous():
+		response_obj['previous'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+	serializer = PostSerializer(data, many=True)
+	response_obj['posts'] = serializer.data
+
+	return Response(response_obj)
 
 # TODO: Create, save, and return a new GlobalAuthor
 def createGlobalAuthor(author):
@@ -299,23 +372,20 @@ def comments(request, uuid):
 		page = pages.page(page_num+1)
 		data = page.object_list
 
-		query = 'comments'
-		count = len(all_comments)
-		size = page_size
-
-		url = settings.LOCAL_HOST + 'api/posts/' + uuid + '/comments'
+		response_obj = {}
+		response_obj['query'] = 'comments'
+		response_obj['count'] = len(all_comments)
+		response_obj['size'] = page_size
 
 		if page.has_next():
-			next = url + '?page=' + str(page_num + 1) + '&size=' + str(page_size)
-		else:
-			next = ''
+			response_obj['next'] = settings.LOCAL_HOST + 'api/posts/' + uuid + '/comments?page=' + str(page_num + 1) + '&size=' + str(page_size)
 		if page.has_previous():
-			previous = url + '?page=' + str(page_num - 1) + '&size=' + str(page_size)
-		else:
-			previous = ''
+			response_obj['previous'] = settings.LOCAL_HOST + 'api/posts/' + uuid + '/comments?page=' + str(page_num - 1) + '&size=' + str(page_size)
 
 		serializer = CommentSerializer(data, many=True)
-		return Response({"query": 'comments', "count": count, "size": size, "next": next, "previous": previous, "comments": serializer.data}, status=status.HTTP_200_OK)
+		response_obj['comments'] = serializer.data
+
+		return Response(response_obj, status=status.HTTP_200_OK)
 		
 	elif request.method == 'POST':
 		try:
@@ -343,11 +413,23 @@ def comments(request, uuid):
 		except:
 			return Response("Comment not added, bad JSON format.", status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
 @api_view(['POST'])
 def friendRequest(request):
 	'''Make a friend request'''
 	if request.method == 'POST':
 		print 'LOCAL AUTHORS READ 1'
+
+		print 'AUTHOR'
+		print request.data['author']['id']
+		print request.data['author']['host']
+		print request.data['author']['displayName']
+
+		print 'FRIEND'
+		print request.data['friend']['id']
+		print request.data['friend']['host']
+		print request.data['friend']['displayName']
+		print request.data['friend']['url']
 		
 		author_id = request.data['author']['id']
 		print author_id
