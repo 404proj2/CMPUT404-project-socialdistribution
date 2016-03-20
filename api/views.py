@@ -130,8 +130,12 @@ def authorPost(request, uuid):
 			if user:
 				print "hi local user"
 				#then they are a local user, need to check if user and uuid are friends, then can return FRIENDS and FOAF posts
-				global_friend = GlobalRelation.objects.filter()
-				local_friend = LocalRelation.objects.filter()
+				global_friend = GlobalRelation.objects.filter(Q(local_author__author_id=uuid) & Q(global_author__global_author_id=queryID) & Q(relation_status='2'))
+				local_friend = LocalRelation.objects.filter((Q(author1__author_id=uuid) & Q(author2__author_id=queryID) & Q(relation_status=True)) | (Q(author1__author_id=queryID) & Q(author2__author_id=uuid) & Q(relation_status=True)))
+				#print("local friends:")
+				#print local_friend
+				#print("\nglobal friends: ")
+				#print global_friend
 				if global_friend or local_friend:
 					#then uuid and queryID are friends, can return all FRIENDS and FOAF posts
 					friend_posts = Post.objects.filter(Q(visibility="FRIENDS") | Q(visibility="FOAF") & Q(author__author_id=uuid))
