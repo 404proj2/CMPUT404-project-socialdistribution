@@ -63,5 +63,28 @@ def delete_post(request):
 			#TODO: this should return 404
 			return HttpResponseRedirect(reverse('show_posts'))
 
+
+@login_required
+def show_profile(request,uuid):
+	print 'gets here'
+	curAuth = Author.objects.get(user=request.user)
+
+	queryAuth = Author.objects.get(author_id=uuid)
+
+	posts= Post.objects.filter(author=queryAuth)
+
+	print "this is where it is probably breaking"
+	for p in posts:
+		p.comments = Comment.objects.filter(post=p.post_id)
+
+	context = dict()
+	context['current_author'] = curAuth
+	context['posts'] = posts
+		
+	if queryAuth == curAuth:
+		return render(request,'authors/index.html', context)
+	else:
+		return render(request,'authors/profile.html', context)
+
 		
 

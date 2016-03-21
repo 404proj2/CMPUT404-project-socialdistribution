@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^logout/', 'authors.views.logout', name='logout'),
     url(r'^friends/',include('friends.urls',namespace='friends')),
     url(r'^settings/', 'settings.views.index', name='settings'),
-    url(r'^profile/', 'posts.views.show_posts', name='show_posts'),
+    url(r'^author/(?P<uuid>[0-9a-z-]+)', 'posts.views.show_profile', name='show_posts'),
     url(r'^posts/', include('posts.urls', namespace='posts')),
     url(r'^nodes/', include('nodes.urls', namespace='nodes')),
     url(r'^admin/', include(admin.site.urls)),

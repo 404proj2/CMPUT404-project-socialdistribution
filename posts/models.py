@@ -30,8 +30,9 @@ class Post(models.Model):
 	description = models.CharField(max_length=140, blank=True)
 	def __str__(self):
 		return self.content
-	#def set_source(self):
-	#	self.source = str(settings.LOCAL_HOST) + "post/" +str(post_id)
+
+	def set_source(self):
+		self.source = str(self.source) + "api/posts/" + str(self.post_id)
 	#def set_origin(self):
 	#	self.origin = str(settings.LOCAL_HOST) + "post/" + str(post_id)
 

@@ -358,15 +358,17 @@ def publicPosts(request):
 			post.content  = request.data['content']
 			post.visibility = request.data['visibility']
 			post.categories = request.data['categories']
+			post.set_source()
 			post.save()
-			#post.set_source()
+
+
 			#post.set_origin()
 
 
 
-			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
+			return Response("Post Successfully Added.", status=status.HTTP_201_CREATED)
 	except:
-		return Response("Comment Not Added", status=status.HTTP_400_BAD_REQUEST)
+		return Response("Post Not Added", status=status.HTTP_400_BAD_REQUEST)
 
 
 	# Default if not given
