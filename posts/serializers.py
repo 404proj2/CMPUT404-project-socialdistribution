@@ -20,14 +20,14 @@ class PostSerializer(serializers.ModelSerializer):
         print(global_comments)
         if local_comments and global_comments:
             print "L AND G"
-            comments = sorted(chain(local_comments, global_comments),key=attrgetter('pub_date'))
+            comments = sorted(chain(local_comments, global_comments),key=attrgetter('pub_date'), reverse=True)
             print ("AFTER SORT CHAIN")
         elif local_comments:
             print "LOCAL"
-            comments = sorted(local_comments, key=attrgetter('pub_date'))
+            comments = sorted(local_comments, key=attrgetter('pub_date'), reverse=True)
         elif global_comments:
             print "GLOBAL"
-            comments = sorted(global_comments, key=attrgetter('pub_date'))
+            comments = sorted(global_comments, key=attrgetter('pub_date'), reverse=True)
         else:
             print "NO L OR G"
             comments = local_comments
