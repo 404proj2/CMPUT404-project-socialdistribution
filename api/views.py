@@ -137,7 +137,14 @@ def queryFriend2Friend(request, uuid1, uuid2):
 
 @api_view(['GET'])
 def getPosts(request):
+
+	# Page num and size, default if not given
+	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+	page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+
+	# Author id as a query parameter
 	queryID = request.GET.get('id', False)
+	# Get the author
 	author = Author.objects.get(author_id=queryID)
 
 	# Get all of the authors friends
@@ -149,12 +156,34 @@ def getPosts(request):
 
 	# For each friend, get and concatenate their 'Friend-Visible' posts
 	for friend in local_friends:
-		all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+		all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
 
-	all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
-	
-	#friends_posts = Post.objects.filter(visibility="FRIENDS")
-	#posts_new = friends_posts | posts
+	# Get all my own private posts
+	all_posts = chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
+
+	# Need this here or else the pagination bitches about it being unicode
+	page_num = int(page_num)
+
+	# Get the right page
+	pages = Paginator(all_posts, page_size)
+	page = pages.page(page_num+1)
+	data = page.object_list
+
+	response_obj = {}
+	response_obj['query'] = 'posts'
+	response_obj['count'] = len(all_posts)
+	response_obj['size'] = page_size
+
+	if page.has_next():
+		response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
+	if page.has_previous():
+		response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+	serializer = PostSerializer(data, many=True)
+	response_obj['posts'] = serializer.data
+
+	return Response(response_obj)
+
 	serializer = PostSerializer(all_posts, many=True)
 	return Response(serializer.data)
 
@@ -484,6 +513,7 @@ def comments(request, uuid):
 				host = request.data['author']['host']
 				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
 				author.save();
+				print 'Successfully created author'
 
 			post = Post.objects.get(post_id=uuid)
 			comment = GlobalComment(author=author, post=post)
@@ -491,6 +521,7 @@ def comments(request, uuid):
 			comment.comment_text = request.data['comment']
 			comment.contentType = request.data['contentType']
 			comment.save()
+			print 'Successfully created comment'
 
 			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
 		except:
