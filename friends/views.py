@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from nodes.models import Node
 import requests
 from django.conf import settings
+import json
 
 @login_required
 def index(request):
@@ -97,8 +98,7 @@ def addGlobalFriend(request, global_author_id):
 		author = Author.objects.get(user=request.user)
 
 		# create a request object in order to send a friend request
-		# For now the default is the local host.
-		our_url = settings.LOCAL_HOST + 'api/friendrequest'
+		our_url = 'http://ditto-test.herokuapp.com/api/friendrequest'
 		print our_url
 		print 'TESSSSST'
 		requestObj = {
@@ -116,9 +116,11 @@ def addGlobalFriend(request, global_author_id):
 				}
 		}
 		
-		print 'try posting the friend request'
-		r = requests.post(our_url, json=requestObj)
-		print 'HI'
+		print 'mightcliffs will now try posting a friend request'
+		null = 'null'
+		r = requests.post(our_url, json=requestObj, auth=(null, null))
+
+		print 'request recieved'
 		GlobalRelation.objects.create(local_author=author, global_author=query, relation_status=0)
 
 		context = dict()
@@ -186,9 +188,40 @@ def search(request):
 		try:
 
 			# Get all Remote users.
+
+			# connect to /api/authors and get latest authors
+			remote_url = 'http://ditto-test.herokuapp.com/api/authors'
+			print remote_url
+
+			# GET request  to grab all global author ids
+			null = 'null'
+			r = requests.get(remote_url, auth=(null, null)) #username, password
+
+			results = json.loads(r.text)
+
+			# add all missing global authors before using search query
+			new_list = []
+			for value in results['authors']:
+				new_list.append(value)
+
+			print new_list
+
+			for item in new_list:
+				if GlobalAuthor.objects.filter(global_author_id=item['id']).exists():
+					# at least one object satisfying query exists
+					print str(item['id']) + ' EXISTS'
+				else:
+					# no object satisfying query exists
+					print "ID NOT FOUND IN GLOBAL AUTHOURS, ADDING...."
+					new_global = GlobalAuthor.objects.create(global_author_id=item['id'], global_author_name=item['displayName'], host=item['host'], url=item['url'])
+					print item
+
+			all_globals = GlobalAuthor.objects.all()
+
 			global_users = GlobalAuthor.objects.filter(global_author_name__icontains=search_id)
 			global_names = []
 			for user in global_users:
+
 				global_names.append(user.global_author_name)
 
 			# Get all local authors except the current one.

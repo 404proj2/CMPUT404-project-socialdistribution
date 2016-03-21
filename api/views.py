@@ -608,10 +608,12 @@ def friendRequest(request):
 		print request.data['friend']['displayName']
 		print request.data['friend']['url']
 		
+		an_author = request.data['author']
+		a_friend = request.data['friend']
 		author_id = request.data['author']['id']
-		print author_id
-
 		friend_id = request.data['friend']['id']
+
+		print author_id
 		print friend_id
 
 		authorObj = None
@@ -623,8 +625,17 @@ def friendRequest(request):
 			print 'AUTHOR: '
 			print authorObj.user
 		except:
-			authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
 			print 'GLOBAL AUTHOR: '
+
+			# Check if global author exists, otherwise create it
+			if GlobalAuthor.objects.get(global_author_id=author_id).exists():
+				print 'GLOBAL AUTHOR EXISTS'
+				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+			else:
+				GlobalAuthor.objects.create(global_author_id=author_id, global_author_name=an_author['displayName'], host=an_author['host'], url=an_author['url'])
+				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+				print 'GLOBAL AUTHOR CREATED'
+
 			print authorObj.global_author_name
 
 		# Try to get an author/ global author object based on given IDs (author_id, friend_id) for friendObj
@@ -633,10 +644,20 @@ def friendRequest(request):
 			print 'FRIEND: '
 			print friendObj.user
 		except:
-			friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 			print 'GLOBAL FRIEND: '
+
+			# Check if global friend exists, otherwise create it
+			if GlobalAuthor.objects.get(global_author_id=friend_id).exists():
+				print 'GLOBAL FRIEND EXISTS'
+				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+			else:
+				GlobalAuthor.objects.create(global_author_id=friend_id, global_author_name=a_friend['displayName'], host=a_friend['host'], url=a_friend['url'])
+				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+				print 'GLOBAL FRIEND CREATED'
+
 			print friendObj.global_author_name
 
+		# Deal with friend requests here
 		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
 			print 'both are local, check for existing relationship'
 			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
