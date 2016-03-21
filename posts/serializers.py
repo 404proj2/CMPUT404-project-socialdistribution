@@ -13,26 +13,15 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_post_comments(self, obj):
         local_comments = Comment.objects.filter(post=obj)
-        print("local_comments:")
-        print(local_comments)
         global_comments = GlobalComment.objects.filter(post=obj)
-        print("global_comments:")
-        print(global_comments)
         if local_comments and global_comments:
-            print "L AND G"
             comments = sorted(chain(local_comments, global_comments),key=attrgetter('pub_date'), reverse=True)
-            print ("AFTER SORT CHAIN")
         elif local_comments:
-            print "LOCAL"
             comments = sorted(local_comments, key=attrgetter('pub_date'), reverse=True)
         elif global_comments:
-            print "GLOBAL"
             comments = sorted(global_comments, key=attrgetter('pub_date'), reverse=True)
         else:
-            print "NO L OR G"
             comments = local_comments
-        print("comments:")
-        print comments
 
         commentSerializer = CommentSerializer(comments, many=True)
         return commentSerializer.data

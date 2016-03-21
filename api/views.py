@@ -243,35 +243,8 @@ def singlePost(request, uuid):
 		except:
 			#TODO - this doesn't work
 			#make new post
-
-			auth = request.data['author']
-			try:
-				author = Author.objects.get(author_id = auth)
-				print(author)
-			except Exception, e:
-				print 'No Author!'
-				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
-
-
-			post = Post(author = author)
-			
-
-			post.title = request.data['title']
-			post.description = request.data['description']
-			post.contentType = request.data['contentType']
-			post.content  = request.data['content']
-			post.visibility = request.data['visibility']
-			post.categories = request.data['categories']
-			post.set_source()
-			post.save()
-
-
-			#post.set_origin()
-
-
-
-			return Response("Post Successfully Added.", status=status.HTTP_201_CREATED)
-
+			# I don't think this should exist anymore
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 			# serializer = PostSerializer(data=request.data)
 			# if serializer.is_valid():
@@ -289,8 +262,10 @@ def singlePost(request, uuid):
 	elif request.method == 'DELETE':
 		try:
 			post = Post.objects.get(post_id=uuid)
+			deleted = Post.objects.get(post_id=uuid).delete()
+			return Response("Post deleted", status=status.HTTP_200_OK)
 		except:
-			return HttpResponse("hi")
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	
 
