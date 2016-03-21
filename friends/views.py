@@ -7,6 +7,9 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
+from nodes.models import Node
+import requests
+from django.conf import settings
 
 @login_required
 def index(request):
@@ -92,16 +95,40 @@ def addGlobalFriend(request, global_author_id):
 		query = GlobalAuthor.objects.get(global_author_id=global_author_id)
 		print 'ADDING GLOBAL WORKS'
 		author = Author.objects.get(user=request.user)
+
+		# create a request object in order to send a friend request
+		# For now the default is the local host.
+		our_url = settings.LOCAL_HOST + 'api/friendrequest'
+		print our_url
+		print 'TESSSSST'
+		requestObj = {
+				"query":"friendrequest",
+				"author": {
+					"id": author.author_id,
+					"host": author.host,
+					"displayName": author.user.username
+				},
+				"friend":{
+					"id": query.global_author_id,
+					"host": query.host,
+					"displayName": query.global_author_name,
+					"url": query.url
+				}
+		}
+		
+		print 'try posting the friend request'
+		r = requests.post(our_url, json=requestObj)
+		print 'HI'
 		GlobalRelation.objects.create(local_author=author, global_author=query, relation_status=0)
 
-	context = dict()
-	context['current_author'] = author
-	context['local_friends'] = author.getLocalFriends()
-	context['global_friends'] = author.getGlobalFriends()
-	context['requests_sent'] = author.getAllPendingFriendRequestsSent()
-	context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
+		context = dict()
+		context['current_author'] = author
+		context['local_friends'] = author.getLocalFriends()
+		context['global_friends'] = author.getGlobalFriends()
+		context['requests_sent'] = author.getAllPendingFriendRequestsSent()
+		context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
 
-	return HttpResponseRedirect('/friends/', context)
+		return HttpResponseRedirect('/friends/', context)
 
 @login_required
 def confirmlocalrequest(request, author_id):
