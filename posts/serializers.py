@@ -12,7 +12,7 @@ class PostSerializer(serializers.ModelSerializer):
     def get_post_comments(self, obj):
         comments = Comment.objects.filter(post=obj.post_id)
         #comments = Comment.objects.all()
-        print comments
+
         commentSerializer = CommentSerializer(comments, many=True)
         return commentSerializer.data
 

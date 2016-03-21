@@ -121,6 +121,7 @@ def singlePost(request, uuid):
 		print(post)
 		serializer = PostSerializer(post)
 		return Response({"post": serializer.data})
+
 	elif request.method == 'POST':
 		form = PostForm(data=request.POST)
 		print(form.errors)
@@ -154,6 +155,8 @@ def singlePost(request, uuid):
 
 	elif request.method == 'DELETE':
 		return HttpResponse("hello")
+
+
 	
 
 #http://www.django-rest-framework.org/tutorial/1-serialization/
@@ -164,18 +167,45 @@ def singlePost(request, uuid):
 @api_view(['GET', 'POST'])
 def publicPosts(request):
 	'''List all public posts on the server'''
-	if request.method == 'GET':
-		posts = Post.objects.filter(visibility='PUBLIC')
-		serializer = PostSerializer(posts, many=True)
-		return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
-	elif request.method == 'POST':
-		#TODO - this is not working - should this even insert a post??
-		serializer = PostSerializer(data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	try:
+		if request.method == 'GET':
+			posts = Post.objects.filter(visibility='PUBLIC')
+			serializer = PostSerializer(posts, many=True)
+			return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
+		elif request.method == 'POST':
+			'''This method POSTS '''
+
+			
+			auth = request.data['author']
+			try:
+				author = Author.objects.get(author_id = auth)
+				print(author)
+			except Exception, e:
+				print 'No Author!'
+				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+
+
+			post = Post(author = author)
+			
+
+			post.title = request.data['title']
+			post.description = request.data['description']
+			post.contentType = request.data['contentType']
+			post.content  = request.data['content']
+			post.visibility = request.data['visibility']
+			post.categories = request.data['categories']
+			post.save()
+			#post.set_source()
+			#post.set_origin()
+
+
+
+			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
+	except:
+		return Response("Comment Not Added", status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # TODO: Create, save, and return a new GlobalAuthor

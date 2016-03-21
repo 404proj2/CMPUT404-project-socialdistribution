@@ -24,10 +24,15 @@ class Post(models.Model):
 	title = models.CharField(max_length=64)
 	contentType = models.CharField(max_length=20, choices=POST_TYPE_CHOICES,default='text/plain')
 	visibility = models.CharField(max_length=10, choices=PRIVACY_CHOICES,default='PUBLIC')
-	source = models.URLField(blank=True)
-	origin = models.URLField(blank=True)
+	source = models.URLField(max_length=140 ,default=settings.LOCAL_HOST)
+	origin = models.URLField(max_length=140 ,default=settings.LOCAL_HOST)
+	categories = models.CharField(max_length=64, blank = True)
 	description = models.CharField(max_length=140, blank=True)
-
-
 	def __str__(self):
 		return self.content
+	#def set_source(self):
+	#	self.source = str(settings.LOCAL_HOST) + "post/" +str(post_id)
+	#def set_origin(self):
+	#	self.origin = str(settings.LOCAL_HOST) + "post/" + str(post_id)
+
+
