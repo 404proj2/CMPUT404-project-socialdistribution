@@ -45,6 +45,7 @@ def getExternalPosts():
 		req = urllib2.Request(url)
 		basic_auth_token = 'Basic ' + n.basic_auth_token
 		req.add_header('Authorization', basic_auth_token)
+		'''
 		try:
 			sd = urllib2.urlopen(req).read()
 			#sd = urllib2.urlopen(url).read()
@@ -63,7 +64,22 @@ def getExternalPosts():
 		except Exception, exc_value:
 			msg = str('Posts could not be loaded from node \'' + n.node_name + '\'. ')
 			errors.append(msg)
+		'''
+		sd = urllib2.urlopen(req).read()
+		#sd = urllib2.urlopen(url).read()
+		
+		stream = BytesIO(sd)
+		data = JSONParser().parse(stream)
 
+		serializer = PostsDeserializer(data=data)
+
+		serializer.is_valid()
+		
+		for p in serializer.data['posts']:
+			p['server'] = n.node_name
+			post = postConv.convert(p)
+			posts.append(post)
+			
 	return posts, errors
 
 def byDate(self, other):
