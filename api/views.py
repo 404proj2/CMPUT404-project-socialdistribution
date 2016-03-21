@@ -23,10 +23,7 @@ from itertools import chain
 from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
-
-
 import itertools
-
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -141,14 +138,24 @@ def queryFriend2Friend(request, uuid1, uuid2):
 @api_view(['GET'])
 def getPosts(request):
 	queryID = request.GET.get('id', False)
-	print("stupid: %s"%request.GET.get('id', False))
-	author = Author.objects.get(user=request.user)
-	posts = Post.objects.filter(visibility="PUBLIC")
-	print "go here"
-	print "is it even going there???"
-	friends_posts = Post.objects.filter(visibility="FRIENDS")
-	posts_new = friends_posts | posts
-	serializer = PostSerializer(posts_new, many=True)
+	author = Author.objects.get(author_id=queryID)
+
+	# Get all of the authors friends
+	local_friends = Author.getLocalFriends(author)
+	global_friends = Author.getGlobalFriends(author)
+
+	# Get all of the public posts on the node
+	all_posts = Post.objects.filter(visibility="PUBLIC")
+
+	# For each friend, get and concatenate their 'Friend-Visible' posts
+	for friend in local_friends:
+		all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+
+	all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
+	
+	#friends_posts = Post.objects.filter(visibility="FRIENDS")
+	#posts_new = friends_posts | posts
+	serializer = PostSerializer(all_posts, many=True)
 	return Response(serializer.data)
 
 @api_view(['GET'])
