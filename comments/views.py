@@ -31,7 +31,7 @@ def comment_new(request):
             comment.post = post
             comment.pub_date = timezone.now()
             comment.save()
-            return redirect('/profile')
+            return redirect('../../')
     else:
         form = CommentForm()
     return render(request, 'authors/index.html', {'form': form})

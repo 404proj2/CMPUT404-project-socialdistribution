@@ -253,17 +253,18 @@ def singlePost(request, uuid):
 		print(post)
 		serializer = PostSerializer(post)
 		return Response({"post": serializer.data})
-	elif request.method == 'POST':
-		form = PostForm(data=request.POST)
-		print(form.errors)
-		if form.is_valid():
-			post = form.save(commit=False)
-			post.author = Author.objects.get(user=request.user.id)
-			post.published = timezone.now()
-			post.save()
-			print(post)
-			serializer = PostSerializer(post)
-			return Response({"post": serializer.data})
+
+	# elif request.method == 'POST':
+	# 	form = PostForm(data=request.POST)
+	# 	print(form.errors)
+	# 	if form.is_valid():
+	# 		post = form.save(commit=False)
+	# 		post.author = Author.objects.get(user=request.user.id)
+	# 		post.published = timezone.now()
+	# 		post.save()
+	# 		print(post)
+	# 		serializer = PostSerializer(post)
+	# 		return Response({"post": serializer.data})
 
 	elif request.method == 'PUT':
 		try:
@@ -271,13 +272,16 @@ def singlePost(request, uuid):
 		except:
 			#TODO - this doesn't work
 			#make new post
-			serializer = PostSerializer(data=request.data)
-			if serializer.is_valid():
-				print("I want to make a new post")
-				serializer.save(author=request.user)
-				return Response(serializer.data)
-			print("errors: %s"%serializer.errors)
+			# I don't think this should exist anymore
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			# serializer = PostSerializer(data=request.data)
+			# if serializer.is_valid():
+			# 	print("I want to make a new post")
+			# 	serializer.save(author=request.user)
+			# 	return Response(serializer.data)
+			# print("errors: %s"%serializer.errors)
+			# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		serializer = PostSerializer(post, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
@@ -285,7 +289,13 @@ def singlePost(request, uuid):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	elif request.method == 'DELETE':
-		return HttpResponse("hello")
+		try:
+			post = Post.objects.get(post_id=uuid)
+			deleted = Post.objects.get(post_id=uuid).delete()
+			return Response("Post deleted", status=status.HTTP_200_OK)
+		except:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 	
 
 ''' 
@@ -350,8 +360,56 @@ GET:
 '''
 # http://www.django-rest-framework.org/tutorial/1-serialization/
 # http://www.django-rest-framework.org/tutorial/2-requests-and-responses/
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def publicPosts(request):
+
+	'''List all public posts on the server'''
+
+	try:
+		if request.method == 'GET':
+			posts = Post.objects.filter(visibility='PUBLIC')
+			print("posts:")
+			print posts
+			serializer = PostSerializer(posts, many=True)
+			print("serializer:")
+			print serializer.data
+			return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
+
+		elif request.method == 'POST':
+			'''This method POSTS '''
+
+			
+			auth = request.data['author']
+			try:
+				author = Author.objects.get(author_id = auth)
+				print(author)
+			except Exception, e:
+				print 'No Author!'
+				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+
+
+			post = Post(author = author)
+			
+
+			post.title = request.data['title']
+			post.description = request.data['description']
+			post.contentType = request.data['contentType']
+			post.content  = request.data['content']
+			post.visibility = request.data['visibility']
+			post.categories = request.data['categories']
+			post.set_source()
+			post.save()
+
+
+			#post.set_origin()
+
+
+
+			return Response("Post Successfully Added.", status=status.HTTP_201_CREATED)
+	except:
+		return Response("Post Not Added", status=status.HTTP_400_BAD_REQUEST)
+
 
 	# Default if not given
 	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
@@ -370,6 +428,7 @@ def publicPosts(request):
 
 	# Need this here or else the pagination bitches about it being unicode
 	page_num = int(page_num)
+
 
 	# Get the right page
 	pages = Paginator(all_posts, page_size)

@@ -2,13 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import PostForm
 from .models import Author
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
 from .models import Post
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from itertools import chain
+from operator import attrgetter
 
 @login_required
 def index(request):
@@ -27,9 +29,10 @@ def post_new(request):
 			post.published = timezone.now()
 			post.save()
 			#return redirect('show_posts')
-			return HttpResponseRedirect(reverse('show_posts'))
+			return HttpResponseRedirect('/')
 			#return render(request, 'authors/index.html', {'form':form})
 	else:
+
 		form = PostForm()
 	return render(request, 'authors/index.html', {'form':form})
 
@@ -62,6 +65,37 @@ def delete_post(request):
 		else:
 			#TODO: this should return 404
 			return HttpResponseRedirect(reverse('show_posts'))
+
+
+@login_required
+def show_profile(request,uuid):
+	curAuth = Author.objects.get(user=request.user)
+
+	queryAuth = Author.objects.get(author_id=uuid)
+
+	all_posts = []
+	posts= Post.objects.filter(author=queryAuth).order_by('-published')
+	for p in posts:
+		local_comments = Comment.objects.filter(post=p.post_id)
+		global_comments = GlobalComment.objects.filter(post=p.post_id)
+		p.comments = sorted(
+	    chain(local_comments, global_comments),
+	    	key=attrgetter('pub_date'))
+
+	for post in posts:
+		all_posts.append(post)
+
+	#print all_posts[0].comments
+	list.sort(all_posts)
+
+	context = dict()
+	context['current_author'] = curAuth
+	context['posts'] = all_posts
+		
+	if queryAuth == curAuth:
+		return render(request,'authors/index.html', context)
+	else:
+		return render(request,'authors/profile.html', context)
 
 		
 
