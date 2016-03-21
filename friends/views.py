@@ -201,6 +201,7 @@ def search(request):
 			# Return all usernames
 			context = dict()
 			context["query"] = search_id
+			context["current_author"] = author
 			context["local_authors"] = local_authors
 			context["global_authors"] = global_authors
 			context["local_friends"] = author.getLocalFriends()
