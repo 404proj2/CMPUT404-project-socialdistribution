@@ -225,17 +225,17 @@ def singlePost(request, uuid):
 		serializer = PostSerializer(post)
 		return Response({"post": serializer.data})
 
-	elif request.method == 'POST':
-		form = PostForm(data=request.POST)
-		print(form.errors)
-		if form.is_valid():
-			post = form.save(commit=False)
-			post.author = Author.objects.get(user=request.user.id)
-			post.published = timezone.now()
-			post.save()
-			print(post)
-			serializer = PostSerializer(post)
-			return Response({"post": serializer.data})
+	# elif request.method == 'POST':
+	# 	form = PostForm(data=request.POST)
+	# 	print(form.errors)
+	# 	if form.is_valid():
+	# 		post = form.save(commit=False)
+	# 		post.author = Author.objects.get(user=request.user.id)
+	# 		post.published = timezone.now()
+	# 		post.save()
+	# 		print(post)
+	# 		serializer = PostSerializer(post)
+	# 		return Response({"post": serializer.data})
 
 	elif request.method == 'PUT':
 		try:
@@ -243,13 +243,43 @@ def singlePost(request, uuid):
 		except:
 			#TODO - this doesn't work
 			#make new post
-			serializer = PostSerializer(data=request.data)
-			if serializer.is_valid():
-				print("I want to make a new post")
-				serializer.save(author=request.user)
-				return Response(serializer.data)
-			print("errors: %s"%serializer.errors)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			auth = request.data['author']
+			try:
+				author = Author.objects.get(author_id = auth)
+				print(author)
+			except Exception, e:
+				print 'No Author!'
+				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+
+
+			post = Post(author = author)
+			
+
+			post.title = request.data['title']
+			post.description = request.data['description']
+			post.contentType = request.data['contentType']
+			post.content  = request.data['content']
+			post.visibility = request.data['visibility']
+			post.categories = request.data['categories']
+			post.set_source()
+			post.save()
+
+
+			#post.set_origin()
+
+
+
+			return Response("Post Successfully Added.", status=status.HTTP_201_CREATED)
+
+
+			# serializer = PostSerializer(data=request.data)
+			# if serializer.is_valid():
+			# 	print("I want to make a new post")
+			# 	serializer.save(author=request.user)
+			# 	return Response(serializer.data)
+			# print("errors: %s"%serializer.errors)
+			# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		serializer = PostSerializer(post, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
@@ -257,8 +287,10 @@ def singlePost(request, uuid):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	elif request.method == 'DELETE':
-		return HttpResponse("hello")
-
+		try:
+			post = Post.objects.get(post_id=uuid)
+		except:
+			return HttpResponse("hi")
 
 	
 
