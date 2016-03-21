@@ -517,10 +517,13 @@ def comments(request, uuid):
 				print 'Successfully created author'
 
 			post = Post.objects.get(post_id=uuid)
+			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
-			
+			print 'Initialized a comment..'
 			comment.comment_text = request.data['comment']
+			print 'added text..'
 			comment.contentType = request.data['contentType']
+			print 'Added comment type'
 			comment.save()
 			print 'Successfully created comment'
 
