@@ -512,7 +512,7 @@ def comments(request, uuid):
 				id = request.data['author']['id']
 				url = request.data['author']['url']
 				host = request.data['author']['host']
-				author = GlobalAuthor(id = id, global_author_name = global_author_name, url = url, host = host)
+				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
 				author.save();
 				print 'Successfully created author'
 
