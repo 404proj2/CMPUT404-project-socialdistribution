@@ -2,13 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from .forms import PostForm
 from .models import Author
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
 from .models import Post
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from itertools import chain
+from operator import attrgetter
 
 @login_required
 def index(request):
@@ -67,20 +69,28 @@ def delete_post(request):
 
 @login_required
 def show_profile(request,uuid):
-	print 'gets here'
 	curAuth = Author.objects.get(user=request.user)
 
 	queryAuth = Author.objects.get(author_id=uuid)
 
-	posts= Post.objects.filter(author=queryAuth)
-
-	print "this is where it is probably breaking"
+	all_posts = []
+	posts= Post.objects.filter(author=queryAuth).order_by('-published')
 	for p in posts:
-		p.comments = Comment.objects.filter(post=p.post_id)
+		local_comments = Comment.objects.filter(post=p.post_id)
+		global_comments = GlobalComment.objects.filter(post=p.post_id)
+		p.comments = sorted(
+	    chain(local_comments, global_comments),
+	    	key=attrgetter('pub_date'))
+
+	for post in posts:
+		all_posts.append(post)
+
+	#print all_posts[0].comments
+	list.sort(all_posts)
 
 	context = dict()
 	context['current_author'] = curAuth
-	context['posts'] = posts
+	context['posts'] = all_posts
 		
 	if queryAuth == curAuth:
 		return render(request,'authors/index.html', context)

@@ -23,7 +23,6 @@ def comment_new(request):
         if form.is_valid():
             comment = form.save(commit=False)
             #comment.post=post
-            author = Author.objects.get(user=request.user.id)
             comment.author = Author.objects.get(user=request.user.id)
             postid = request.POST.get("post_id", "")
             #print("post_id: %s"%postid)
@@ -32,7 +31,7 @@ def comment_new(request):
             comment.post = post
             comment.pub_date = timezone.now()
             comment.save()
-            return redirect('../../author/'+author.author_id)
+            return redirect('../../')
     else:
         form = CommentForm()
     return render(request, 'authors/index.html', {'form': form})

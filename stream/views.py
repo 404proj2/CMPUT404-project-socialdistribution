@@ -45,6 +45,7 @@ def getExternalPosts():
 		req = urllib2.Request(url)
 		basic_auth_token = 'Basic ' + n.basic_auth_token
 		req.add_header('Authorization', basic_auth_token)
+		
 		try:
 			sd = urllib2.urlopen(req).read()
 			#sd = urllib2.urlopen(url).read()
@@ -55,14 +56,32 @@ def getExternalPosts():
 			serializer = PostsDeserializer(data=data)
 
 			serializer.is_valid()
-			
+
 			for p in serializer.data['posts']:
 				p['server'] = n.node_name
 				post = postConv.convert(p)
+				print post
 				posts.append(post)
 		except Exception, exc_value:
 			msg = str('Posts could not be loaded from node \'' + n.node_name + '\'. ')
 			errors.append(msg)
+		
+		'''
+		sd = urllib2.urlopen(req).read()
+		#sd = urllib2.urlopen(url).read()
+		
+		stream = BytesIO(sd)
+		data = JSONParser().parse(stream)
+
+		serializer = PostsDeserializer(data=data)
+
+		serializer.is_valid()
+		
+		for p in serializer.data['posts']:
+			p['server'] = n.node_name
+			post = postConv.convert(p)
+			posts.append(post)
+			'''
 
 	return posts, errors
 
@@ -91,12 +110,17 @@ def index(request):
 	
 	# Get external posts
 	ext_posts, errors = getExternalPosts()# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
-	for post in ext_posts:
-		print post.comments
+	#for post in ext_posts:
+	#
+	#	print post.comments
 	#	post.server = "Remote"
 
+	#all_posts = chain(all_posts, ext_posts)
+
 	#print all_posts[0].comments
-	list.sort(all_posts)
+	#list.sort(all_posts)
+	all_posts = chain(all_posts, ext_posts)
+
 	
 	# Combine the two lists in chronological order
 	#while int_posts and ext_posts:

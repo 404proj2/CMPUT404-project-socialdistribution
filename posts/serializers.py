@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from posts.models import Post
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
 from authors.serializers import AuthorSerializer
 from comments.serializers import CommentSerializer
+from operator import attrgetter
+from itertools import chain
 
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
@@ -10,8 +12,16 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField('get_post_comments') 
 
     def get_post_comments(self, obj):
-        comments = Comment.objects.filter(post=obj.post_id).order_by('-pub_date')
-        #comments = Comment.objects.all()
+        local_comments = Comment.objects.filter(post=obj)
+        global_comments = GlobalComment.objects.filter(post=obj)
+        if local_comments and global_comments:
+            comments = sorted(chain(local_comments, global_comments),key=attrgetter('pub_date'), reverse=True)
+        elif local_comments:
+            comments = sorted(local_comments, key=attrgetter('pub_date'), reverse=True)
+        elif global_comments:
+            comments = sorted(global_comments, key=attrgetter('pub_date'), reverse=True)
+        else:
+            comments = local_comments
 
         commentSerializer = CommentSerializer(comments, many=True)
         return commentSerializer.data

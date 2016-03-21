@@ -137,7 +137,14 @@ def queryFriend2Friend(request, uuid1, uuid2):
 
 @api_view(['GET'])
 def getPosts(request):
+
+	# Page num and size, default if not given
+	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+	page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+
+	# Author id as a query parameter
 	queryID = request.GET.get('id', False)
+	# Get the author
 	author = Author.objects.get(author_id=queryID)
 
 	# Get all of the authors friends
@@ -149,12 +156,34 @@ def getPosts(request):
 
 	# For each friend, get and concatenate their 'Friend-Visible' posts
 	for friend in local_friends:
-		all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+		all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
 
-	all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
-	
-	#friends_posts = Post.objects.filter(visibility="FRIENDS")
-	#posts_new = friends_posts | posts
+	# Get all my own private posts
+	all_posts = chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
+
+	# Need this here or else the pagination bitches about it being unicode
+	page_num = int(page_num)
+
+	# Get the right page
+	pages = Paginator(all_posts, page_size)
+	page = pages.page(page_num+1)
+	data = page.object_list
+
+	response_obj = {}
+	response_obj['query'] = 'posts'
+	response_obj['count'] = len(all_posts)
+	response_obj['size'] = page_size
+
+	if page.has_next():
+		response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
+	if page.has_previous():
+		response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+	serializer = PostSerializer(data, many=True)
+	response_obj['posts'] = serializer.data
+
+	return Response(response_obj)
+
 	serializer = PostSerializer(all_posts, many=True)
 	return Response(serializer.data)
 
@@ -225,17 +254,17 @@ def singlePost(request, uuid):
 		serializer = PostSerializer(post)
 		return Response({"post": serializer.data})
 
-	elif request.method == 'POST':
-		form = PostForm(data=request.POST)
-		print(form.errors)
-		if form.is_valid():
-			post = form.save(commit=False)
-			post.author = Author.objects.get(user=request.user.id)
-			post.published = timezone.now()
-			post.save()
-			print(post)
-			serializer = PostSerializer(post)
-			return Response({"post": serializer.data})
+	# elif request.method == 'POST':
+	# 	form = PostForm(data=request.POST)
+	# 	print(form.errors)
+	# 	if form.is_valid():
+	# 		post = form.save(commit=False)
+	# 		post.author = Author.objects.get(user=request.user.id)
+	# 		post.published = timezone.now()
+	# 		post.save()
+	# 		print(post)
+	# 		serializer = PostSerializer(post)
+	# 		return Response({"post": serializer.data})
 
 	elif request.method == 'PUT':
 		try:
@@ -243,13 +272,16 @@ def singlePost(request, uuid):
 		except:
 			#TODO - this doesn't work
 			#make new post
-			serializer = PostSerializer(data=request.data)
-			if serializer.is_valid():
-				print("I want to make a new post")
-				serializer.save(author=request.user)
-				return Response(serializer.data)
-			print("errors: %s"%serializer.errors)
+			# I don't think this should exist anymore
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			# serializer = PostSerializer(data=request.data)
+			# if serializer.is_valid():
+			# 	print("I want to make a new post")
+			# 	serializer.save(author=request.user)
+			# 	return Response(serializer.data)
+			# print("errors: %s"%serializer.errors)
+			# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		serializer = PostSerializer(post, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
@@ -257,8 +289,12 @@ def singlePost(request, uuid):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	elif request.method == 'DELETE':
-		return HttpResponse("hello")
-
+		try:
+			post = Post.objects.get(post_id=uuid)
+			deleted = Post.objects.get(post_id=uuid).delete()
+			return Response("Post deleted", status=status.HTTP_200_OK)
+		except:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	
 
@@ -332,7 +368,11 @@ def publicPosts(request):
 	try:
 		if request.method == 'GET':
 			posts = Post.objects.filter(visibility='PUBLIC')
+			print("posts:")
+			print posts
 			serializer = PostSerializer(posts, many=True)
+			print("serializer:")
+			print serializer.data
 			return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
 
@@ -378,8 +418,8 @@ def publicPosts(request):
 	# Get all local and global comments, combine and paginate results
 	all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
 
-	for post in all_posts:
-		print post.comments
+	#for post in all_posts:
+	#	print post.comments
 
 	#num_comments = len(all_posts[0]['comments'])
 
@@ -528,17 +568,23 @@ def comments(request, uuid):
 				# Create a new global author
 				global_author_name = request.data['author']['displayName']
 				print 'Creating new global author'
+				id = request.data['author']['id']
 				url = request.data['author']['url']
 				host = request.data['author']['host']
 				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
 				author.save();
+				print 'Successfully created author'
 
 			post = Post.objects.get(post_id=uuid)
+			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
-			
+			print 'Initialized a comment..'
 			comment.comment_text = request.data['comment']
+			print 'added text..'
 			comment.contentType = request.data['contentType']
+			print 'Added comment type'
 			comment.save()
+			print 'Successfully created comment'
 
 			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
 		except:

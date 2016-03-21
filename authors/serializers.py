@@ -52,9 +52,10 @@ class AuthorRequestSerializer(serializers.ModelSerializer):
 		global_relations = obj.getGlobalFriends()
 		all_relations = local_relations + global_relations
 		#all_relations = Author.objects.all()
-
+		print all_relations
 		friend_serializer = FriendSerializer(all_relations, many=True)
-
+		print "this shit"
+		print friend_serializer.data
 		
 
 		return friend_serializer.data
