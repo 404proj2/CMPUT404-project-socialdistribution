@@ -7,10 +7,16 @@ class AuthorSerializer(serializers.ModelSerializer):
 	id = serializers.SerializerMethodField('get_author_id')
 
 	def get_username(self, obj):
-		return obj.user.username
+		try:
+			return obj.user.username
+		except:
+			return obj.global_author_name
 
 	def get_author_id(self, obj):
-		return obj.author_id
+		try:
+			return obj.author_id
+		except:
+			return obj.global_author_id
 
 	class Meta:
 		model = Author

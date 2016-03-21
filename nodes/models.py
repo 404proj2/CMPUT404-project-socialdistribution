@@ -8,6 +8,7 @@ class Node(models.Model):
 	add_date = models.DateTimeField('date added',default=timezone.now)
 	node_name = models.TextField()
 	node_url = models.TextField()
+	basic_auth_token = models.TextField(default="")
 	
 	def __str__(self):
 		return self.node_name

@@ -10,7 +10,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField('get_post_comments') 
 
     def get_post_comments(self, obj):
-        comments = Comment.objects.filter(post=obj.post_id)
+        comments = Comment.objects.filter(post=obj.post_id).order_by('-pub_date')
         #comments = Comment.objects.all()
 
         commentSerializer = CommentSerializer(comments, many=True)

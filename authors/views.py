@@ -12,6 +12,7 @@ from django.shortcuts import render_to_response
 
 @login_required
 def index(request):
+	#TODO: Populate this template with some more information...
 	return render(request, 'profile.html')
 
 @login_required

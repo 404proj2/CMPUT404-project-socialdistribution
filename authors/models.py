@@ -54,13 +54,14 @@ class Author(models.Model):
 
 		return globalFriends
 
-	def isFOAF(self, authorObj, isGlobal=False):
+	def isFOAF(self, authorObj):
 		result = False
+		className = authorObj.getClassName()
 
 		localFriends = self.getLocalFriends()
 		globalFriends = self.getGlobalFriends()
 
-		if isGlobal:
+		if className == "GlobalAuthor":
 			# TODO: Need to access a server to obtain global friend's friends
 			# before comparing.
 			if len(globalFriends) > 0:
