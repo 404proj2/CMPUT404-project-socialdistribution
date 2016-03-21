@@ -332,7 +332,11 @@ def publicPosts(request):
 	try:
 		if request.method == 'GET':
 			posts = Post.objects.filter(visibility='PUBLIC')
+			print("posts:")
+			print posts
 			serializer = PostSerializer(posts, many=True)
+			print("serializer:")
+			print serializer.data
 			return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
 
 
