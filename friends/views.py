@@ -131,7 +131,7 @@ def addGlobalFriend(request, global_author_id):
 		
 		print 'mightcliffs will now try posting a friend request'
 		null = 'null'
-		r = requests.post(our_url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
+		r = requests.post(our_url, json=requestObj, auth=('Team7', 'pass'))
 
 		print 'request recieved'
 		GlobalRelation.objects.create(local_author=author, global_author=query, relation_status=0)
