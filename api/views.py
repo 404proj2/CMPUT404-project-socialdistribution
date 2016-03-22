@@ -137,7 +137,14 @@ def queryFriend2Friend(request, uuid1, uuid2):
 
 @api_view(['GET'])
 def getPosts(request):
+
+	# Page num and size, default if not given
+	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+	page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+
+	# Author id as a query parameter
 	queryID = request.GET.get('id', False)
+	# Get the author
 	author = Author.objects.get(author_id=queryID)
 
 	# Get all of the authors friends
@@ -149,12 +156,34 @@ def getPosts(request):
 
 	# For each friend, get and concatenate their 'Friend-Visible' posts
 	for friend in local_friends:
-		all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+		all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
 
-	all_posts = itertools.chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
-	
-	#friends_posts = Post.objects.filter(visibility="FRIENDS")
-	#posts_new = friends_posts | posts
+	# Get all my own private posts
+	all_posts = chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author))
+
+	# Need this here or else the pagination bitches about it being unicode
+	page_num = int(page_num)
+
+	# Get the right page
+	pages = Paginator(all_posts, page_size)
+	page = pages.page(page_num+1)
+	data = page.object_list
+
+	response_obj = {}
+	response_obj['query'] = 'posts'
+	response_obj['count'] = len(all_posts)
+	response_obj['size'] = page_size
+
+	if page.has_next():
+		response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
+	if page.has_previous():
+		response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+	serializer = PostSerializer(data, many=True)
+	response_obj['posts'] = serializer.data
+
+	return Response(response_obj)
+
 	serializer = PostSerializer(all_posts, many=True)
 	return Response(serializer.data)
 
@@ -529,17 +558,23 @@ def comments(request, uuid):
 				# Create a new global author
 				global_author_name = request.data['author']['displayName']
 				print 'Creating new global author'
+				id = request.data['author']['id']
 				url = request.data['author']['url']
 				host = request.data['author']['host']
 				author = GlobalAuthor(global_author_name = global_author_name, url = url, host = host)
 				author.save();
+				print 'Successfully created author'
 
 			post = Post.objects.get(post_id=uuid)
+			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
-			
+			print 'Initialized a comment..'
 			comment.comment_text = request.data['comment']
+			print 'added text..'
 			comment.contentType = request.data['contentType']
+			print 'Added comment type'
 			comment.save()
+			print 'Successfully created comment'
 
 			return Response("Comment Successfully Added.", status=status.HTTP_201_CREATED)
 		except:
@@ -563,10 +598,12 @@ def friendRequest(request):
 		print request.data['friend']['displayName']
 		print request.data['friend']['url']
 		
+		an_author = request.data['author']
+		a_friend = request.data['friend']
 		author_id = request.data['author']['id']
-		print author_id
-
 		friend_id = request.data['friend']['id']
+
+		print author_id
 		print friend_id
 
 		authorObj = None
@@ -578,8 +615,17 @@ def friendRequest(request):
 			print 'AUTHOR: '
 			print authorObj.user
 		except:
-			authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
 			print 'GLOBAL AUTHOR: '
+
+			# Check if global author exists, otherwise create it
+			if GlobalAuthor.objects.get(global_author_id=author_id).exists():
+				print 'GLOBAL AUTHOR EXISTS'
+				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+			else:
+				GlobalAuthor.objects.create(global_author_id=author_id, global_author_name=an_author['displayName'], host=an_author['host'], url=an_author['url'])
+				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+				print 'GLOBAL AUTHOR CREATED'
+
 			print authorObj.global_author_name
 
 		# Try to get an author/ global author object based on given IDs (author_id, friend_id) for friendObj
@@ -588,10 +634,20 @@ def friendRequest(request):
 			print 'FRIEND: '
 			print friendObj.user
 		except:
-			friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 			print 'GLOBAL FRIEND: '
+
+			# Check if global friend exists, otherwise create it
+			if GlobalAuthor.objects.get(global_author_id=friend_id).exists():
+				print 'GLOBAL FRIEND EXISTS'
+				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+			else:
+				GlobalAuthor.objects.create(global_author_id=friend_id, global_author_name=a_friend['displayName'], host=a_friend['host'], url=a_friend['url'])
+				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
+				print 'GLOBAL FRIEND CREATED'
+
 			print friendObj.global_author_name
 
+		# Deal with friend requests here
 		if (authorObj.getClassName() == 'Author') and (friendObj.getClassName() == 'Author'):
 			print 'both are local, check for existing relationship'
 			localRelations = LocalRelation.objects.filter((Q(author1=authorObj) & Q(author2=friendObj)) | (Q(author1=friendObj) & Q(author2=authorObj)))
