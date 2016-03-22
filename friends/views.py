@@ -201,10 +201,10 @@ def confirmglobalrequest(request, global_author_id):
 			"displayName": author.user.username
 		},
 		"friend":{
-			"id": query.global_author_id,
-			"host": query.host,
-			"displayName": query.global_author_name,
-			"url": query.url
+			"id": global_author.global_author_id,
+			"host": global_author.host,
+			"displayName": global_author.global_author_name,
+			"url": global_author.url
 		}
 	}
 	
