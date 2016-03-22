@@ -623,7 +623,7 @@ def friendRequest(request):
 				print 'GLOBAL AUTHOR EXISTS'
 			except:
 				print "IN EXCEPT"
-				GlobalAuthor.objects.create(global_author_id=author_id, global_author_name=an_author['displayName'], host=an_author['host'], url=an_author['url'])
+				GlobalAuthor.objects.create(global_author_id=author_id, global_author_name=an_author['displayName'], host=an_author['host'])
 				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
 				print 'GLOBAL AUTHOR CREATED'
 
