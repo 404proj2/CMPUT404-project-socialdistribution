@@ -11,6 +11,8 @@ from nodes.models import Node
 import requests
 from django.conf import settings
 import json
+import urllib2
+
 
 @login_required
 def index(request):
@@ -186,23 +188,43 @@ def search(request):
 	if request.method == 'POST':
 		search_id = request.POST.get('search_field', None)
 		try:
+			errors = []
+			new_list = []
+			# Get all the nodes
+			nodes = Node.objects.all()
 
+			# Get all remote users on each node
+			for node in nodes:
+				try:
+					remote_url = node.node_url + 'authors/'
+					remote_auth = node.basic_auth_token
+
+					req = urllib2.Request(remote_url)
+					basic_auth_token = 'Basic ' + node.basic_auth_token
+					req.add_header('Authorization', basic_auth_token)
+
+					sd = urllib2.urlopen(req).read()
+
+					#print 'SD: '
+					#print sd
+
+					obj = json.loads(sd)
+
+					#print 'OBJ: '
+					#print obj
+
+					for value in obj['authors']:
+						print 'Value: '
+						print value
+						new_list.append(value)
+					
+					print sd
+				except:
+					msg = str('Friends could not be loaded from node \'' + node.node_name + '\'. ')
+					errors.append(msg)
+					print
 			# Get all Remote users.
 
-			# connect to /api/authors and get latest authors
-			remote_url = 'http://ditto-test.herokuapp.com/api/authors'
-			print remote_url
-
-			# GET request  to grab all global author ids
-			null = 'null'
-			r = requests.get(remote_url, auth=(null, null)) #username, password
-
-			results = json.loads(r.text)
-
-			# add all missing global authors before using search query
-			new_list = []
-			for value in results['authors']:
-				new_list.append(value)
 
 			print new_list
 
