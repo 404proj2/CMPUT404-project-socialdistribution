@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from authors.models import Author
+from authors.models import Author, GlobalAuthor
 from django.contrib.auth.models import User
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -73,7 +73,10 @@ class FriendSerializer(serializers.ModelSerializer):
 		return obj.user.username
 
 	def get_author_id(self, obj):
-		return obj.author_id
+		if obj.getClassName() == "Author":
+			return obj.author_id
+		elif obj.getClassName() == "GlobalAuthor":
+			return obj.global_author_id
 
 	def get_host(self,obj):
 		return obj.host
