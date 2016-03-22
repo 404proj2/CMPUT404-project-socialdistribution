@@ -176,7 +176,7 @@ def confirmglobalrequest(request, global_author_id):
 	if request.POST.get('confirm_globalrequest'):
 		author = Author.objects.get(user=request.user)
 		global_author = GlobalAuthor.objects.get(global_author_id=global_author_id)
-		query = GlobalRelation.objects.get(local_author=author, global_author_id=global_author, relation_status=1)
+		query = GlobalRelation.objects.get(local_author=author, global_author_id=global_author)
 		query.delete()
 
 		# Re-add for mutual friends status
