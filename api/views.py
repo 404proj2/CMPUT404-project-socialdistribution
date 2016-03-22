@@ -617,6 +617,10 @@ def friendRequest(request):
 		except:
 			print 'GLOBAL AUTHOR: '
 
+			try:
+				print("exists?: %s"%GlobalAuthor.objects.get(global_author_id=author_id).exists())
+			except:
+				print "IN EXCEPT"
 			# Check if global author exists, otherwise create it
 			if GlobalAuthor.objects.get(global_author_id=author_id).exists():
 				print 'GLOBAL AUTHOR EXISTS'
