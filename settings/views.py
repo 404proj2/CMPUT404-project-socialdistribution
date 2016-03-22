@@ -13,4 +13,4 @@ from django.contrib.auth.models import User
 @login_required
 def index(request):
 	author = Author.objects.get(user=request.user)
-	return render(request, 'settings/index.html', {'author':author})
+	return render(request, 'settings/index.html', {'author':author, 'current_author':author})
