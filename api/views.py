@@ -617,15 +617,12 @@ def friendRequest(request):
 		except:
 			print 'GLOBAL AUTHOR: '
 
+			# Check if global author exists, otherwise create it
 			try:
-				print("exists?: %s"%GlobalAuthor.objects.get(global_author_id=author_id).exists())
+				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
+				print 'GLOBAL AUTHOR EXISTS'
 			except:
 				print "IN EXCEPT"
-			# Check if global author exists, otherwise create it
-			if GlobalAuthor.objects.get(global_author_id=author_id).exists():
-				print 'GLOBAL AUTHOR EXISTS'
-				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
-			else:
 				GlobalAuthor.objects.create(global_author_id=author_id, global_author_name=an_author['displayName'], host=an_author['host'], url=an_author['url'])
 				authorObj = GlobalAuthor.objects.get(global_author_id=author_id)
 				print 'GLOBAL AUTHOR CREATED'
