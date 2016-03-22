@@ -4,13 +4,18 @@ from comments.forms import CommentForm, GlobalCommentForm
 from posts.forms import PostForm
 from .models import Author
 from .models import Post, Comment
+from nodes.models import Node
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils import timezone
 from comments.serializers import CommentSerializer
+from datetime import datetime
+import uuid
 
+import urllib2
+import json
 
 from django.contrib.auth.models import User
 
@@ -40,30 +45,53 @@ def comment_new(request):
             form = CommentForm(data=request.POST)
             if form.is_valid():
 
-                # Get the author
+                # Get the author of the comment
                 author = Author.objects.get(user=request.user.id)
 
-                # Get the post
-                postid = request.POST.get("post_id", "")
-                post = Post(post_id = postid, author=author)
-
-                comment = Comment.objects.create(author = author, post = post)
-
-                #comment.author = Author.objects.get(user=request.user.id)
-                #post = Post(post_id=postid, author=comment.author)
-                #comment.post = post
-                comment.pub_date = timezone.now()
+                # Create the author dictionary object
+                author_dict = {
+                    "id": author.author_id,
+                    "host": author.host,
+                    "displayName": author.user.username, # todo: get the real user name
+                    "url": author.url,
+                    "github": author.github
+                }
                 
-                serializer = CommentSerializer(comment)
-                #if serializer.is_valid():
-                #    serializer.save()
-                print serializer.data
+                # Create the comment dictionary object
+                comment = {
+                    "author": author_dict,
+                    "comment": request.POST.get("comment_text"),
+                    "contentType": request.POST.get("contentType"),
+                    "id": uuid.uuid4().hex,
+                    "published": str(datetime.now())
+                } 
 
+                # Get the node url
+                node_name = request.POST.get("node_name")
+                node = Node.objects.get(node_name = node_name)
+                node_url = node.node_url
 
+                # Get the node's authentication token
+                auth_token = "Basic " + str(node.basic_auth_token)
 
+                # Get the post id
+                post_id = request.POST.get("post_id")
+
+                # Build the URL to post to
+                url = node_url + "posts/" + post_id + "/comments"
+
+                # Create the request object
+                req = urllib2.Request(url)
+                req.add_header('Content-Type', 'application/json')
+                req.add_header('Authorization', auth_token)
+
+                # Jsonify the request
+                json_request = json.dumps(comment)
+                #print json_request
+
+                # Post to the node
+                urllib2.urlopen(req, json_request)
                 return redirect('../../')
-
-
 
     else:
         form = CommentForm()

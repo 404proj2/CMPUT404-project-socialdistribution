@@ -69,7 +69,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
       <!-- TODO: get friend requests from model -->
       <li><a href="/friends"><span class="glyphicon glyphicon-user"></span> Friends <span class="badge">2</span></a></li>
-      <li><a href="author/{{ current_author.author_id }}"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
+      <li><a href="/profile"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li><a href="/settings"><span class="glyphicon glyphicon-user"></span> Settings</a></li>
@@ -217,7 +217,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             </div>
           </div>
           <div class="modal-footer">
-           <input type="hidden" name="post_id" value={{ post.post_id}} />
+           <input type="hidden" name="post_id" value={{ post.post_id }} />
+           <input type="hidden" name="node_name" value={{ post.server }} />
            <button type="submit" class="btn btn-primary">Save</button>
            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
          </div>
