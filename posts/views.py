@@ -61,10 +61,10 @@ def delete_post(request):
 		print post
 		if post != None:
 			post.delete()
-			return HttpResponseRedirect(reverse('show_posts'))
+			return HttpResponseRedirect('/')
 		else:
 			#TODO: this should return 404
-			return HttpResponseRedirect(reverse('show_posts'))
+			return HttpResponseRedirect('/')
 
 
 @login_required
