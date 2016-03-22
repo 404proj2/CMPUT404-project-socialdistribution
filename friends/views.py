@@ -208,8 +208,6 @@ def confirmglobalrequest(request, global_author_id):
 		}
 	}
 
-	remote_auth = node.basic_auth_token
-
 	req = urllib2.Request(url)
 	req.add_header('Authorization', 'Basic VGVhbTc6cGFzcw==')
 
