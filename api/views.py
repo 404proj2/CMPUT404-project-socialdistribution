@@ -336,30 +336,61 @@ def publicPosts(request):
 
 	'''List all public posts on the server'''
 
-	try:
-		if request.method == 'GET':
-			posts = Post.objects.filter(visibility='PUBLIC')
-			print("posts:")
-			print posts
-			serializer = PostSerializer(posts, many=True)
-			print("serializer:")
-			print serializer.data
-			return Response({"query": "posts", "count": len(posts), "size": 50, "next": "", "previous": "", "posts": serializer.data})
+
+	if request.method == 'GET':
+		# Default if not given
+		page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
+		page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
+		
+		# Get all local and global comments, combine and paginate results
+		all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
+
+		#for post in all_posts:
+		#	print post.comments
+
+		#num_comments = len(all_posts[0]['comments'])
+
+		#print 'Comments: '
+		#print num_comments
+
+		# Need this here or else the pagination bitches about it being unicode
+		page_num = int(page_num)
 
 
-		elif request.method == 'POST':
-			'''This method POSTS '''
+		# Get the right page
+		pages = Paginator(all_posts, page_size)
+		page = pages.page(page_num+1)
+		data = page.object_list
 
-			
-			auth = request.data['author']
-			try:
-				author = Author.objects.get(author_id = auth)
-				print(author)
-			except Exception, e:
-				print 'No Author!'
-				return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+		response_obj = {}
+		response_obj['query'] = 'posts'
+		response_obj['count'] = len(all_posts)
+		response_obj['size'] = page_size
+
+		if page.has_next():
+			response_obj['next'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num + 1) + '&size=' + str(page_size)
+		if page.has_previous():
+			response_obj['previous'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+		serializer = PostSerializer(data, many=True)
+		response_obj['posts'] = serializer.data
+
+		return Response(response_obj)
 
 
+	elif request.method == 'POST':
+		'''This method POSTS '''
+
+		
+		auth = request.data['author']
+		try:
+			author = Author.objects.get(author_id = auth)
+			print(author)
+		except Exception, e:
+			print 'No Author!'
+			return Response("Not a valid author...", status=status.HTTP_400_BAD_REQUEST)
+
+		try:
 			post = Post(author = author)
 			
 
@@ -374,52 +405,11 @@ def publicPosts(request):
 
 
 			#post.set_origin()
-
-
-
 			return Response("Post Successfully Added.", status=status.HTTP_201_CREATED)
-	except:
-		return Response("Post Not Added", status=status.HTTP_400_BAD_REQUEST)
+		except:
+			return Response("Post Not Added", status=status.HTTP_400_BAD_REQUEST)
 
 
-	# Default if not given
-	page_num = request.GET.get('page', DEFAULT_PAGE_NUM)	
-	page_size = request.GET.get('size', DEFAULT_PAGE_SIZE)
-	
-	# Get all local and global comments, combine and paginate results
-	all_posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
-
-	for post in all_posts:
-		print post.comments
-
-	#num_comments = len(all_posts[0]['comments'])
-
-	#print 'Comments: '
-	#print num_comments
-
-	# Need this here or else the pagination bitches about it being unicode
-	page_num = int(page_num)
-
-
-	# Get the right page
-	pages = Paginator(all_posts, page_size)
-	page = pages.page(page_num+1)
-	data = page.object_list
-
-	response_obj = {}
-	response_obj['query'] = 'posts'
-	response_obj['count'] = len(all_posts)
-	response_obj['size'] = page_size
-
-	if page.has_next():
-		response_obj['next'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num + 1) + '&size=' + str(page_size)
-	if page.has_previous():
-		response_obj['previous'] = settings.LOCAL_HOST + 'api/posts?page=' + str(page_num - 1) + '&size=' + str(page_size)
-
-	serializer = PostSerializer(data, many=True)
-	response_obj['posts'] = serializer.data
-
-	return Response(response_obj)
 
 # TODO: Create, save, and return a new GlobalAuthor
 def createGlobalAuthor(author):
