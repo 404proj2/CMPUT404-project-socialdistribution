@@ -208,7 +208,7 @@ def confirmglobalrequest(request, global_author_id):
 		}
 	}
 	
-	r = requests.post(our_url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
+	r = requests.post(url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
 
 
 	return HttpResponseRedirect('/friends/', context)
