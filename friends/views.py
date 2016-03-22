@@ -190,6 +190,27 @@ def confirmglobalrequest(request, global_author_id):
 	context['requests_sent'] = author.getAllPendingFriendRequestsSent()
 	context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
 
+
+	# create a request object in order to send a friend request
+	url = 'http://ditto-test.herokuapp.com/api/friendrequest'
+	requestObj = {
+		"query":"friendrequest",
+		"author": {
+			"id": author.author_id,
+			"host": author.host,
+			"displayName": author.user.username
+		},
+		"friend":{
+			"id": query.global_author_id,
+			"host": query.host,
+			"displayName": query.global_author_name,
+			"url": query.url
+		}
+	}
+	
+	r = requests.post(our_url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
+
+
 	return HttpResponseRedirect('/friends/', context)
 
 @login_required
