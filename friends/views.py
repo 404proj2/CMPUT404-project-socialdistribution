@@ -208,9 +208,10 @@ def confirmglobalrequest(request, global_author_id):
 		}
 	}
 
+	method = 'POST'
 	req = urllib2.Request(url)
 	req.add_header('Authorization', 'Basic VGVhbTc6cGFzcw==')
-
+	req.get_method = lambda: method
 	sd = urllib2.urlopen(req).read()
 
 	
