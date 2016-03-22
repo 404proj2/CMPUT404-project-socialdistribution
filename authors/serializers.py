@@ -70,7 +70,10 @@ class FriendSerializer(serializers.ModelSerializer):
 	displayName = serializers.SerializerMethodField('get_username')
 
 	def get_username(self, obj):
-		return obj.user.username
+		if obj.getClassName() == "Author":
+			return obj.user.username
+		elif obj.getClassName() == "GlobalAuthor":
+			return obj.global_author_name
 
 	def get_author_id(self, obj):
 		if obj.getClassName() == "Author":
