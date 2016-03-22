@@ -641,7 +641,7 @@ def friendRequest(request):
 				print 'GLOBAL FRIEND EXISTS'
 				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 			else:
-				print 'GLOBAL FRIEND DOESNT EXIST"
+				print 'GLOBAL FRIEND DOESNT EXIST'
 				GlobalAuthor.objects.create(global_author_id=friend_id, global_author_name=a_friend['displayName'], host=a_friend['host'], url=a_friend['url'])
 				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 				print 'GLOBAL FRIEND CREATED'
