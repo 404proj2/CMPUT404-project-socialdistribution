@@ -99,6 +99,16 @@ def addGlobalFriend(request, global_author_id):
 		print 'ADDING GLOBAL WORKS'
 		author = Author.objects.get(user=request.user)
 
+		#remote_url = node.node_url + 'authors/'
+		#remote_auth = node.basic_auth_token
+
+		#req = urllib2.Request(remote_url)
+		#basic_auth_token = 'Basic ' + node.basic_auth_token
+		#req.add_header('Authorization', basic_auth_token)
+
+		#sd = urllib2.urlopen(req).read()
+
+
 		# create a request object in order to send a friend request
 		our_url = 'http://ditto-test.herokuapp.com/api/friendrequest'
 		print our_url
@@ -120,7 +130,7 @@ def addGlobalFriend(request, global_author_id):
 		
 		print 'mightcliffs will now try posting a friend request'
 		null = 'null'
-		r = requests.post(our_url, json=requestObj, auth=(null, null))
+		r = requests.post(our_url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
 
 		print 'request recieved'
 		GlobalRelation.objects.create(local_author=author, global_author=query, relation_status=0)
