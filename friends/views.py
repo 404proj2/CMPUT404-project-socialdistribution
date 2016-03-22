@@ -207,8 +207,16 @@ def confirmglobalrequest(request, global_author_id):
 			"url": global_author.url
 		}
 	}
+
+	remote_auth = node.basic_auth_token
+
+	req = urllib2.Request(url)
+	req.add_header('Authorization', 'Basic VGVhbTc6cGFzcw==')
+
+	sd = urllib2.urlopen(req).read()
+
 	
-	r = requests.post(url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
+	#r = requests.post(url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
 
 
 	return HttpResponseRedirect('/friends/', context)
