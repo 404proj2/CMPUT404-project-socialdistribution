@@ -12,6 +12,7 @@ import requests
 from django.conf import settings
 import json
 import urllib2
+import httplib
 
 
 @login_required
@@ -208,13 +209,17 @@ def confirmglobalrequest(request, global_author_id):
 		}
 	}
 
-	req = urllib2.Request(url)
-	req.add_header('Authorization', 'Basic VGVhbTc6cGFzcw==')
-	print 'Before sending post'
-	urllib2.urlopen(req)
-	print 'After sending post'
+	#h = httplib.HTTPConnection(settings.LOCAL_HOST)
+
+	#req = urllib2.Request(url)
+	#req.add_header('Authorization', 'Basic VGVhbTc6cGFzcw==')
+	#print 'Before sending post'
+	#u = urllib2.urlopen(url, req)
+	#h.request('POST', '/inout-tracker/index.php', data, headers)
+
+	#print 'After sending post'
 	
-	#r = requests.post(url, json=requestObj, auth=('Authorization', 'VGVhbTc6cGFzcw=='))
+	r = requests.post(url, json=requestObj, auth=('Authorization', 'Basic VGVhbTc6cGFzcw=='))
 
 
 	return HttpResponseRedirect('/friends/', context)
