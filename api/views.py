@@ -588,9 +588,9 @@ def friendRequest(request):
 		print 'LOCAL AUTHORS READ 1'
 
 		print 'AUTHOR'
-		print request.data['author']['id']
-		print request.data['author']['host']
-		print request.data['author']['displayName']
+		print ("id: %s"%request.data['author']['id'])
+		print ("host: %s"%request.data['author']['host'])
+		print ("displayName: %s"%request.data['author']['displayName'])
 
 		print 'FRIEND'
 		print request.data['friend']['id']
@@ -641,6 +641,7 @@ def friendRequest(request):
 				print 'GLOBAL FRIEND EXISTS'
 				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 			else:
+				print 'GLOBAL FRIEND DOESNT EXIST"
 				GlobalAuthor.objects.create(global_author_id=friend_id, global_author_name=a_friend['displayName'], host=a_friend['host'], url=a_friend['url'])
 				friendObj = GlobalAuthor.objects.get(global_author_id=friend_id)
 				print 'GLOBAL FRIEND CREATED'
