@@ -12,86 +12,97 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-   <style type="text/css">
-   #edContainer{
+  <style type="text/css">
+  #edContainer{
     margin: 15%;
     padding: 5%;
     border:solid;
     border-radius: 5%;
     background-color: #282828 ;
     color: white;
-    }
+  }
   textarea{ 
 
-        max-height:3em;
-      }
-   </style>
+    max-height:3em;
+  }
+  </style>
 </head>
 <!-- TODO: get css from static file -->
 <body>
 
-<!-- Nav Bar -->
-<nav class="navbar navbar-default navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span> 
-      </button>
-      <a class="navbar-brand" href="/">C404 Social Distribution</a>
+  <!-- Nav Bar -->
+  <nav class="navbar navbar-default navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span> 
+        </button>
+        <a class="navbar-brand" href="/">C404 Social Distribution</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+          <!-- TODO: get friend requests from model -->
+          <li><a href="/friends"><span class="glyphicon glyphicon-user"></span> Friends <span class="badge">2</span></a></li>
+          <li><a href="/author/{{ current_author.author_id }}"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a href="/settings"><span class="glyphicon glyphicon-user"></span> Settings</a></li>
+          <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+        </ul>
+      </div>
     </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-    <ul class="nav navbar-nav">
-      <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-      <!-- TODO: get friend requests from model -->
-      <li><a href="/friends"><span class="glyphicon glyphicon-user"></span> Friends <span class="badge">2</span></a></li>
-      <li><a href="../author/{{ current_author.author_id }}"><span class="glyphicon glyphicon-th"></span> Profile</a></li>
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li class="active"><a href="/settings"><span class="glyphicon glyphicon-user"></span> Settings</a></li>
-      <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
-    </ul>
+  </nav>
+  <!-- End Nav Bar -->
+
+
+  <div class="container">
+    <div id = "edContainer">
+      <h1>Profile Information</h1>
+              <b>
+
+          <p>Id: {{ author.author_id }}</p>
+          <p>Host: {{ author.host }}</p>
+          <p>Url: {{ author.host }}{{ author.author_id }} </p>
+        </b>   
+
+
+    <div class='form-group'>
+      <form id="login_form" method="post" action="settings/" autocomplete="off">
+        {% csrf_token %}
+        <div class='form-group'>
+          <b>Username:</b>
+          <textarea   name ="username" class="form-control" id='usr' rows="1">{{ user.username }}</textarea>
+        </div>
+
+
+        <div class='form-group'>
+          <b> New Password (Leave field empty to keep current password):</b>
+          <textarea   name ="password" class="form-control" id='usr' rows="1"></textarea>
+        </div>
+                <div class='form-group'>
+          <b>Github:</b>
+          <textarea  name ="git_hub" class="form-control" id='ghub'  rows="1">{{ author.github }}</textarea>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Save Changes" align='center' autocomplete="off" ></input>
+
+
+
+
+
+
+
+      </form>
     </div>
   </div>
-</nav>
-<!-- End Nav Bar -->
-
-
-<div class="container">
-  <div id = "edContainer">
-  <h1>Profile Information</h1>
-  <!--
-    <form id="login_form" method="post" action="" autocomplete="off">
-      {% csrf_token %}
-
-      <div class='form-group'>
-        <b>Username:</b>
-        <textarea   value="" class="form-control" id='usr' rows="1">{{ user.username }}</textarea>
-      </div>
-      <!--      
-      <div class='form-group'>
-        <b>Password:</b>
-        <textarea   value="" class="form-control" id='pswrd'  rows="1">{{ user.password }}</textarea>
-      </div>
-    -->
-    <b>
-      <p>Username: {{ user.username}} </p>
-      <p>Id: {{ author.author_id }}</p>
-      <p>Host: {{ author.host }}</p>
-      <p>Url: {{ author.host }}{{ author.author_id }} </p>
-    </b>   
-      <div class='form-group'>
-            <form id="login_form" method="post" action="" autocomplete="off">
-      {% csrf_token %}
-
-      <div class='form-group'>
-    <b>Github:</b>
-        <textarea  value="" class="form-control" id='ghub'  rows="1">{{ author.github }}</textarea>
-      </div>
-
-      <input type="submit" class="btn btn-primary" value="Save Changes" align='center' autocomplete="off" ></input>
-
-    </form>
-    </div>
 </div>
+
+
+
+</body>
+
+
+</html>
