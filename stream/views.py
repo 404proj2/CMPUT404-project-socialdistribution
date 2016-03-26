@@ -141,4 +141,9 @@ def index(request):
 	context['errors'] = errors
 	context['posts'] = all_posts
 
+	if len(author.github) > 0:
+		context['g_hub'] = author.github
+	else:
+		context['g_hub'] = '404proj2'
+
 	return render(request,'stream/index.html', context)

@@ -35,7 +35,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   }
 
   $(document).ready(function() {
-    updateFeed('CMPUT404Proj');
+    updateFeed('{{ g_hub }}');
 
     $('#update').click(function() { updateFeed($("#username").val()); });
     $("#username").keypress(function(e) {
