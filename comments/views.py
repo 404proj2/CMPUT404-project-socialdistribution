@@ -62,9 +62,16 @@ def comment_new(request):
                 }
                 
                 # Create the comment dictionary object
+                if request.POST.get("contentType") == 'text/x-markdown':
+                    comment = CommonMark.commonmark(request.POST.get("comment_text"))
+                else:
+                    comment = request.POST.get("comment_text")
+
+
+
                 comment = {
                     "author": author_dict,
-                    "comment": request.POST.get("comment_text"),
+                    "comment": comment,
                     "contentType": request.POST.get("contentType"),
                     "id": uuid.uuid4().hex,
                     "published": str(datetime.now())
