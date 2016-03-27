@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from itertools import chain
 from operator import attrgetter
-
+import CommonMark
 @login_required
 def index(request):
 	return HttpResponse("Hello you're at posts index")
@@ -27,6 +27,8 @@ def post_new(request):
 			post = form.save(commit=False)
 			post.author = Author.objects.get(user=request.user.id)
 			post.published = timezone.now()
+			if post.contentType == 'text/x-markdown':
+				post.content =  CommonMark.commonmark(post.content)
 			post.save()
 			#return redirect('show_posts')
 			return HttpResponseRedirect('/')

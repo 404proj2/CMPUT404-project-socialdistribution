@@ -96,7 +96,7 @@
         <div class="panel-body">
           <h4>{{ post.title|title }}</h4>
           <p class='publish-date'>{{ post.published }}</p>
-          <p> {{ post.content }}</p>
+          <p> {{ post.content|safe }}</p>
 
           <!-- Comments -->
           <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge badge-success">{{ post.comments|length }}</span></button>
@@ -112,7 +112,7 @@
               </div>
             </div>
             <div class="panel-body">
-              <p>{{ comment.comment_text }}</p>
+              <p>{{ comment.comment_text|safe }}</p>
             </div>
           </div>
           <!--{% endif %}-->
