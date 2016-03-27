@@ -13,7 +13,7 @@ from django.utils import timezone
 from comments.serializers import CommentSerializer
 from datetime import datetime
 import uuid
-
+import CommonMark
 import urllib2
 import json
 
@@ -39,6 +39,10 @@ def comment_new(request):
                 #print("post: %s"%post)
                 comment.post = post
                 comment.pub_date = timezone.now()
+
+                if comment.contentType == 'text/x-markdown':
+                    comment.comment_text =  CommonMark.commonmark(comment.comment_text)
+
                 comment.save()
                 return redirect('../../')
         except:
