@@ -81,8 +81,6 @@ def confirm_account(request, username):
 		# send email to user to let them know that their account is now activated.
 		email_subject = 'MightyCliffs Account Activation'
 		email_body = 'Hi %s,\nYour account has now been activated!\nYou can now access your account by logging in here: http://127.0.0.1:8000/ \n\nHave fun!\n\nMightyCliffs'  % (user.username)
-
-		# send email to admin (will come up with admin email address)
 		send_mail(email_subject, email_body, 'rkdhatt@ualberta.ca', 
 			[user.email], fail_silently=False)
 
