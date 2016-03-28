@@ -48,7 +48,8 @@
             <h1>Register</h1>
 
             {% if registered %}
-            <strong>Thank you for registering!</strong>
+            <strong>Thank you for registering! 
+                The server admin will confirm your account and send you an email once activated.</strong></br>
             <a href="/">Return to the homepage.</a><br />
             {% else %}
 
@@ -58,15 +59,15 @@
                 {% csrf_token %}
                 <div class='form-group'>
                     <b>Name:</b>
-                    <input type="text" name="username" value="" class="form-control" id='usr'>
+                    <input type="text" name="username" required value="" class="form-control" id='usr'>
                 </div class='form-group'>
                 <div class='form-group'>
                     <b>Email:</b>
-                    <input type="email" name="email" value="" class="form-control" id='usr'>
+                    <input type="email" name="email" required value="" class="form-control" id='usr'>
                 </div class='form-group'>
                 <div class='form-group'>
                     <b>Password:</b>
-                    <input type="password" name="password" value="" class="form-control" id='pswrd'><br>
+                    <input type="password" name="password" required value="" class="form-control" id='pswrd'><br>
                 </div>
 
 

@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/',include('api.urls',namespace='api')),
     url(r'^comments/', include('comments.urls', namespace='comments')),
+    url(r'^confirm_account/(?P<username>\w+)', 'authors.views.confirm_account', name='confirm_account'),
 ]
