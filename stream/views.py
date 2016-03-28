@@ -140,6 +140,7 @@ def index(request):
 	context['current_author'] = author
 	context['errors'] = errors
 	context['posts'] = all_posts
+	context['requests_recieved'] = author.getAllPendingFriendRequestsRecieved()
 
 	if len(author.github) > 0:
 		context['g_hub'] = author.github
