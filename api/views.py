@@ -32,6 +32,7 @@ from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
 import itertools
+import CommonMark
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -119,24 +120,32 @@ def queryFriends(request, uuid):
 		except:
 			return Response(status=status.HTTP_404_NOT_FOUND)
 
-		author_list = request.data['authors']
+		# http://stackoverflow.com/questions/13349573/how-to-change-a-django-querydict-to-python-dict 2016-03-29
+		recData = dict(request.data.iterlists())
+		author_list = recData.get('authors')
+		print 'AUTHOR LIST'
+		print author_list
 
 		# get local and global friends based on specified uuid
 		local_friends = author.getLocalFriends()
 		global_friends = author.getGlobalFriends()
 
 		friends = []
-
+		print 'ENTERING FRIEND CHECK'
 		for auth in author_list:
 
 			# check in local friends list to compare and add matching IDs to friends list
 			for friend in local_friends:
 				if friend.author_id == auth:
+					print 'LOCAL FRIEND FOUND'
+					print auth
 					friends.append(auth)
 
 			# check in global friends list to compare and add matching IDs to friends list
 			for friend in global_friends:
 				if friend.global_author_id == auth:
+					print 'GLOBAL FRIEND FOUND'
+					print auth
 					friends.append(auth)
 
 		# create expected response object
@@ -603,9 +612,16 @@ def comments(request, uuid):
 			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
 			print 'Initialized a comment..'
-			comment.comment_text = request.data['comment']
+
+			if request.data['contentType'] == 'text/x-markdown':
+				markedOne= CommonMark.commonmark(request.data['comment'])
+				comment.comment_text = markedOne
+			else:	
+				comment.comment_text = request.data['comment']
+
 			print 'added text..'
 			comment.contentType = request.data['contentType']
+
 			print 'Added comment type'
 			comment.save()
 			print 'Successfully created comment'

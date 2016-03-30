@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import PostForm
+from .forms import PostForm, ImageForm
 from .models import Author
 from comments.models import Comment, GlobalComment
-from .models import Post
+from .models import Post, Image
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required
 from itertools import chain
 from operator import attrgetter
 import CommonMark
+from django.conf import settings
+
 @login_required
 def index(request):
 	return HttpResponse("Hello you're at posts index")
@@ -21,8 +23,14 @@ def index(request):
 def post_new(request):
 	if request.method == "POST":
 		form = PostForm(data=request.POST)
-		print(form)
-		print(form.errors)
+
+		#print("REQUEST.POST:%s"%request.POST)
+		imageForm = ImageForm(request.POST, request.FILES)
+		#print("FILES: %s"%request.FILES['imageFile'])
+
+
+		#print(form)
+		#print(form.errors)
 		if form.is_valid():
 			post = form.save(commit=False)
 			post.author = Author.objects.get(user=request.user.id)
@@ -31,8 +39,23 @@ def post_new(request):
 				post.content =  CommonMark.commonmark(post.content)
 			post.save()
 			#return redirect('show_posts')
-			return HttpResponseRedirect('/')
 			#return render(request, 'authors/index.html', {'form':form})
+			if imageForm.is_valid():
+				image = Image(imageFile=request.FILES['imageFile'])
+				image.post = post
+				image.save()
+				content = post.content
+				print("image url: %s"%image.imageFile.url)
+				imgUrl = "https://mighty-cliffs-82717.herokuapp.com/media/" + image.imageFile.url
+				#this will work for mighty cliffs but not for local testing
+				#imgUrl = post.source + "media/"+image.imageFile.url
+				print("imgUrl: %s"%imgUrl)
+				post.content = content + "<br><img src="+"'"+imgUrl+"'"+"/>"
+				post.save()
+				print("post.content: %s"%post.content)
+			return HttpResponseRedirect('/')
+		else:
+			return HttpResponseRedirect('/')
 	else:
 
 		form = PostForm()
@@ -99,5 +122,22 @@ def show_profile(request,uuid):
 	else:
 		return render(request,'authors/profile.html', context)
 
-		
+@login_required
+def add_image(request):
+	if request.method == 'POST':
+		form = ImageForm(request.POST, request.FILES)
+		print("FILES: %s"%request.FILES['imageFile'])
+		print("POST: %s"%request.POST)
+		if form.is_valid():
+			image = Image(imageFile=request.FILES['imageFile'])
+			print("HELLO")
+			image.save()
+			return HttpResponse('image upload success')
+		else:
+			print("not valid form")
+			print("errors: %s"%form.errors)
+			curAuth = Author.objects.get(user=request.user)
+			context = dict()
+			context['current_author'] = curAuth
+			return HttpResponse("hello")
 

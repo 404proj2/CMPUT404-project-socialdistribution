@@ -120,6 +120,10 @@ STATICFILES_DIRS = (
     PROFILE_IMAGES_PATH
 )
 
+MEDIA_URL = 'https://mighty-cliffs-82717.herokuapp.com/media/'
+MEDIA_ROOT = os.path.join(PROJECT_DIR,'media')
+ADMIN_MEDIA_PREFIX = '/admin-media/'
+
 # Default page if not logged in.
 LOGIN_URL= '/login'
 
