@@ -120,6 +120,9 @@ STATICFILES_DIRS = (
     PROFILE_IMAGES_PATH
 )
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(PROJECT_DIR,'media')
+
 # Default page if not logged in.
 LOGIN_URL= '/login'
 

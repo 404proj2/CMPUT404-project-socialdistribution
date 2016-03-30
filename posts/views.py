@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import PostForm
+from .forms import PostForm, ImageForm
 from .models import Author
 from comments.models import Comment, GlobalComment
-from .models import Post
+from .models import Post, Image
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -99,5 +99,21 @@ def show_profile(request,uuid):
 	else:
 		return render(request,'authors/profile.html', context)
 
-		
+@login_required
+def add_image(request):
+	if request.method == 'POST':
+		form = ImageForm(request.POST, request.FILES)
+		print("FILES: %s"%request.FILES['imageFile'])
+		if form.is_valid():
+			image = Image(imageFile=request.FILES['imageFile'])
+			print("HELLO")
+			image.save()
+			return HttpResponse('image upload success')
+		else:
+			print("not valid form")
+			print("errors: %s"%form.errors)
+			curAuth = Author.objects.get(user=request.user)
+			context = dict()
+			context['current_author'] = curAuth
+			return HttpResponse("hello")
 

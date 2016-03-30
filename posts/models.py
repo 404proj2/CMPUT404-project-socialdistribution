@@ -37,3 +37,6 @@ class Post(models.Model):
 	#	self.origin = str(settings.LOCAL_HOST) + "post/" + str(post_id)
 
 
+class Image(models.Model):
+	#post = models.ForeignKey(Post, on_delete=models.CASCADE)
+	imageFile = models.FileField(upload_to='images/', default='images/None/no-img.jpg')

@@ -1,5 +1,7 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     # Examples:
@@ -17,5 +19,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/',include('api.urls',namespace='api')),
     url(r'^comments/', include('comments.urls', namespace='comments')),
-    url(r'^confirm_account/(?P<username>\w+)', 'authors.views.confirm_account', name='confirm_account'),
-]
+    url(r'^confirm_account/(?P<username>\w+)', 'authors.views.confirm_account', name='confirm_account')
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
