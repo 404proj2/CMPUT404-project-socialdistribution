@@ -81,6 +81,8 @@ def index(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def queryFriends(request, uuid):
 	'''GET returns friends of author_id'''
 	# a reponse if friends or not
@@ -160,6 +162,8 @@ def queryFriends(request, uuid):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def queryFriend2Friend(request, uuid1, uuid2):
 	'''ask if 2 authors are friends'''
 	if request.method == 'GET':
@@ -175,6 +179,8 @@ def queryFriend2Friend(request, uuid1, uuid2):
 		return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def getPosts(request):
 
 	# Page num and size, default if not given
@@ -231,6 +237,8 @@ def getPosts(request):
 		return HttpResponseBadRequest("Need to give id in url: ?id=<author_id>")
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def getProfile(request, uuid):
 	#View an authors profile
 	#try:
@@ -245,6 +253,8 @@ def getProfile(request, uuid):
 		return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
 	if request.method == 'GET':
@@ -283,6 +293,8 @@ def authorPost(request, uuid):
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def singlePost(request, uuid):
 	'''GET returns a single post
 	POST inserts a post
@@ -404,6 +416,8 @@ GET:
 # http://www.django-rest-framework.org/tutorial/1-serialization/
 # http://www.django-rest-framework.org/tutorial/2-requests-and-responses/
 @api_view(['GET','POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def publicPosts(request):
 
 	'''List all public posts on the server'''
@@ -547,6 +561,8 @@ POST:
 			HTTP 400 Bad Request
 '''
 @api_view(['GET', 'POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def comments(request, uuid):
 	if request.method == 'GET':
 
@@ -632,6 +648,8 @@ def comments(request, uuid):
 
 @csrf_exempt
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def friendRequest(request):
 	'''Make a friend request'''
 	if request.method == 'POST':
@@ -805,6 +823,8 @@ def friendRequest(request):
 	return Response("Friend request cannot be processed.", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def allAuthors(request):
 	'''returns all local users on this node'''
 	if request.method == 'GET':
