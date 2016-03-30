@@ -24,6 +24,7 @@ from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
 import itertools
+import CommonMark
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -581,9 +582,16 @@ def comments(request, uuid):
 			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
 			print 'Initialized a comment..'
-			comment.comment_text = request.data['comment']
+
+			if request.data['contentType'] == 'text/x-markdown':
+				markedOne= CommonMark.commonmark(request.data['comment'])
+				comment.comment_text = markedOne
+			else:	
+				comment.comment_text = request.data['comment']
+
 			print 'added text..'
 			comment.contentType = request.data['contentType']
+
 			print 'Added comment type'
 			comment.save()
 			print 'Successfully created comment'
