@@ -46,13 +46,15 @@ def post_new(request):
 				image.save()
 				content = post.content
 				print("image url: %s"%image.imageFile.url)
-				imgUrl = "http://127.0.0.1:8000/media/" + image.imageFile.url
+				imgUrl = "https://mighty-cliffs-82717.herokuapp.com/media/" + image.imageFile.url
 				#this will work for mighty cliffs but not for local testing
 				#imgUrl = post.source + "media/"+image.imageFile.url
 				print("imgUrl: %s"%imgUrl)
 				post.content = content + "<br><img src="+"'"+imgUrl+"'"+"/>"
 				post.save()
 				print("post.content: %s"%post.content)
+			return HttpResponseRedirect('/')
+		else:
 			return HttpResponseRedirect('/')
 	else:
 
