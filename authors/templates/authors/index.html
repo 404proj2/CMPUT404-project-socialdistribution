@@ -67,17 +67,6 @@
                 <h4>Posts</h4>
                 <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#newPostModal">New Post</button>
               </center>
-
-
-              <form action="/posts/images/" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>
-                  <input id="id_image" type="file" class="" name="imageFile">
-                </p>
-                <input type="submit" value="Upload" />
-              </form>
-
-
             </div>
           </div>
         </div>
@@ -254,6 +243,7 @@
             <label><input type="radio" name="contentType" value="text/x-markdown">Markdown</label>
           </div>
         </div>
+        <input id="id_image" type="file" class="" name="imageFile">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-info" >Upload Image</button>

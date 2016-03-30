@@ -20,10 +20,29 @@ def index(request):
 @login_required
 def post_new(request):
 	if request.method == "POST":
+		# else:
+		# 	print("not valid form")
+		# 	print("errors: %s"%imageForm.errors)
+		# 	curAuth = Author.objects.get(user=request.user)
+		# 	context = dict()
+		# 	context['current_author'] = curAuth
+		# 	return HttpResponse("hello")
+
 		form = PostForm(data=request.POST)
-		print(form)
-		print(form.errors)
+
+		#print("REQUEST.POST:%s"%request.POST)
+		imageForm = ImageForm(request.POST, request.FILES)
+		#print("FILES: %s"%request.FILES['imageFile'])
+
+
+		#print(form)
+		#print(form.errors)
 		if form.is_valid():
+
+			image = Image(imageFile=request.FILES['imageFile'])
+			print("HELLO")
+			image.save()
+
 			post = form.save(commit=False)
 			post.author = Author.objects.get(user=request.user.id)
 			post.published = timezone.now()
@@ -104,6 +123,7 @@ def add_image(request):
 	if request.method == 'POST':
 		form = ImageForm(request.POST, request.FILES)
 		print("FILES: %s"%request.FILES['imageFile'])
+		print("POST: %s"%request.POST)
 		if form.is_valid():
 			image = Image(imageFile=request.FILES['imageFile'])
 			print("HELLO")
