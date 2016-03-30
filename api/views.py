@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
+from nodes.models import Node
 from comments.models import Comment, GlobalComment
 from authors.models import Author, GlobalAuthor
 from authors.serializers import AuthorRequestSerializer, FriendSerializer
@@ -59,11 +60,9 @@ def index(request):
 	print 'User: ', content['user']
 	print 'Auth: ', content['auth']
 
-	node = Node.objects.get(node_user = content['user'])
+	#node = Node.objects.get(node_user = content['user'])
+	#print 'Node: ', node
 
-	print 'Node: ', node
-
-	#return render(request,'api/index.html')
 	''' List all comments '''
 	''' TODO: Why is this returning comments? '''
 
