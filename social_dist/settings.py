@@ -120,8 +120,9 @@ STATICFILES_DIRS = (
     PROFILE_IMAGES_PATH
 )
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'http://127.0.0.1:800/media/'
 MEDIA_ROOT = os.path.join(PROJECT_DIR,'media')
+ADMIN_MEDIA_PREFIX = '/admin-media/'
 
 # Default page if not logged in.
 LOGIN_URL= '/login'

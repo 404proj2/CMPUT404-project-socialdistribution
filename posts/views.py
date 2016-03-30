@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required
 from itertools import chain
 from operator import attrgetter
 import CommonMark
+from django.conf import settings
+
 @login_required
 def index(request):
 	return HttpResponse("Hello you're at posts index")
@@ -20,14 +22,6 @@ def index(request):
 @login_required
 def post_new(request):
 	if request.method == "POST":
-		# else:
-		# 	print("not valid form")
-		# 	print("errors: %s"%imageForm.errors)
-		# 	curAuth = Author.objects.get(user=request.user)
-		# 	context = dict()
-		# 	context['current_author'] = curAuth
-		# 	return HttpResponse("hello")
-
 		form = PostForm(data=request.POST)
 
 		#print("REQUEST.POST:%s"%request.POST)
@@ -38,11 +32,6 @@ def post_new(request):
 		#print(form)
 		#print(form.errors)
 		if form.is_valid():
-
-			image = Image(imageFile=request.FILES['imageFile'])
-			print("HELLO")
-			image.save()
-
 			post = form.save(commit=False)
 			post.author = Author.objects.get(user=request.user.id)
 			post.published = timezone.now()
@@ -50,8 +39,21 @@ def post_new(request):
 				post.content =  CommonMark.commonmark(post.content)
 			post.save()
 			#return redirect('show_posts')
-			return HttpResponseRedirect('/')
 			#return render(request, 'authors/index.html', {'form':form})
+			if imageForm.is_valid():
+				image = Image(imageFile=request.FILES['imageFile'])
+				image.post = post
+				image.save()
+				content = post.content
+				print("image url: %s"%image.imageFile.url)
+				imgUrl = "http://127.0.0.1:8000/media/" + image.imageFile.url
+				#this will work for mighty cliffs but not for local testing
+				#imgUrl = post.source + "media/"+image.imageFile.url
+				print("imgUrl: %s"%imgUrl)
+				post.content = content + "<br><img src="+"'"+imgUrl+"'"+"/>"
+				post.save()
+				print("post.content: %s"%post.content)
+			return HttpResponseRedirect('/')
 	else:
 
 		form = PostForm()

@@ -8,4 +8,4 @@ class PostForm(forms.ModelForm):
 		fields = ('content', 'title', 'contentType', 'visibility',)
 
 class ImageForm(forms.Form):
-	imageFile = forms.FileField()
+	imageFile = forms.ImageField()
