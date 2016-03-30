@@ -17,6 +17,7 @@ import collections
 import json
 import uuid
 
+
 class PostTestCase(TestCase):
 
     def setUp(self):
