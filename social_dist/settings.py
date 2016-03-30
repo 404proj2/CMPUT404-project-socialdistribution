@@ -30,6 +30,13 @@ ALLOWED_HOSTS = []
 #LOCAL_HOST = "http://127.0.0.1:8000/"
 LOCAL_HOST = "https://mighty-cliffs-82717.herokuapp.com/"
 
+# EMAIL SETTINGS
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'Cmput404@gmail.com'
+EMAIL_HOST_PASSWORD = 'cmput404w16'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 # Application definition
 
 INSTALLED_APPS = (
