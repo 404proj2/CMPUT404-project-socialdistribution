@@ -115,3 +115,10 @@ class RESTTestCase(TestCase):
 		print 'RESPONSE DATA:'
 		print response.data
 		self.assertEqual(response.data['authors'], [author2.author_id, global1.global_author_id])
+
+		# Test no friends
+		requestData = { 'query':'friends', 'author': author3.author_id, 'authors': [author2.author_id, global1.global_author_id]}
+		url = '/api/friends/' + author3.author_id
+		response = self.client.post(url, requestData, format='json')
+		self.assertNotEqual(response.data['authors'], [author2.author_id, global1.global_author_id])
+		self.assertEqual(response.data['authors'], [])
