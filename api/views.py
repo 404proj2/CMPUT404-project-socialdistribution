@@ -1,3 +1,11 @@
+
+# For rest authentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
@@ -10,7 +18,7 @@ from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
@@ -32,12 +40,34 @@ MAX_PAGE_SIZE = 100
 # Default page number
 DEFAULT_PAGE_NUM = 0
 
+
+#authentication_classes = (SessionAuthentication, BasicAuthentication)
+#permission_classes = (IsAuthenticated,)
+
 # TODO: Change this to a static index page, don't return comments here
 @api_view(['GET','POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def index(request):
+
+	content = {
+		'user': unicode(request.user),
+		'auth': unicode(request.auth),
+	}
+
+	print 'User: ', content['user']
+	print 'Auth: ', content['auth']
+
+	node = Node.objects.get(node_user = content['user'])
+
+	print 'Node: ', node
+
 	#return render(request,'api/index.html')
 	''' List all comments '''
 	''' TODO: Why is this returning comments? '''
+
+
+
 	if request.method == 'GET':
 		comments = Comment.objects.all()
 		serializer = CommentSerializer(comments, many=True)
