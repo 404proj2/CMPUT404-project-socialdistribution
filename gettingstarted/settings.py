@@ -27,6 +27,12 @@ SECRET_KEY = 'i+acxn5(akgsn!sr4^qgf(^m&*@+g1@u^t@=8s@axc41ml*f=s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# EMAIL SETTINGS
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST_USER = 'cmput404team7@outlook.com'
+EMAIL_HOST_PASSWORD = 'Cmput404w16!'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True
 
 # Application definition
 

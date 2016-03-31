@@ -58,8 +58,8 @@ def register(request):
 			email_body = 'A new user has been registered with the following information and their account requires activation:\n\nUsername: ' + user.username + ' \nEmail: ' + str(user.email) + ' \n\nClick here to activate the user: https://mighty-cliffs-82717.herokuapp.com/confirm_account/' + user.username
 
 			# send email to admin (will come up with admin email address)
-			send_mail(email_subject, email_body, 'Cmput404@gmail.com',
-                ['Cmput404@gmail.com'], fail_silently=False)
+			send_mail(email_subject, email_body, 'cmput404team7@outlook.com',
+                ['cmput404team7@outlook.com'], fail_silently=False)
 
 		else:
 			print user_form.errors, profile_form.errors
@@ -81,7 +81,7 @@ def confirm_account(request, username):
 		# send email to user to let them know that their account is now activated.
 		email_subject = 'MightyCliffs Account Activation'
 		email_body = 'Hi %s,\nYour account has now been activated!\nYou can now access your account by logging in here: https://mighty-cliffs-82717.herokuapp.com/ \n\nHave fun!\n\nMightyCliffs'  % (user.username)
-		send_mail(email_subject, email_body, 'Cmput404@gmail.com', 
+		send_mail(email_subject, email_body, 'cmput404team7@outlook.com', 
 			[user.email], fail_silently=False)
 
 		return HttpResponse("The following user is now active: " + user.username)
