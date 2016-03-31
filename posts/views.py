@@ -4,6 +4,8 @@ from .forms import PostForm, ImageForm
 from .models import Author
 from comments.models import Comment, GlobalComment
 from .models import Post, Image
+from posts.serializers import PostsDeserializer
+from comments.serializers import CommentSerializer
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -13,6 +15,16 @@ from itertools import chain
 from operator import attrgetter
 import CommonMark
 from django.conf import settings
+from authors.models import GlobalAuthor
+from posts.converter import PostConverter
+from itertools import chain
+from operator import attrgetter
+from nodes.models import Node
+import urllib2
+#import json
+
+from django.utils.six import BytesIO
+from rest_framework.parsers import JSONParser
 
 @login_required
 def index(request):
@@ -97,33 +109,108 @@ def delete_post(request):
 
 @login_required
 def show_profile(request,uuid):
-	curAuth = Author.objects.get(user=request.user)
+	try:
+		curAuth = Author.objects.get(user=request.user)
 
-	queryAuth = Author.objects.get(author_id=uuid)
+		queryAuth = Author.objects.get(author_id=uuid)
 
-	all_posts = []
-	posts= Post.objects.filter(author=queryAuth).order_by('-published')
-	for p in posts:
-		local_comments = Comment.objects.filter(post=p.post_id)
-		global_comments = GlobalComment.objects.filter(post=p.post_id)
-		p.comments = sorted(
-	    chain(local_comments, global_comments),
-	    	key=attrgetter('pub_date'))
+		all_posts = []
+		posts= Post.objects.filter(author=queryAuth).order_by('-published')
+		for p in posts:
+			local_comments = Comment.objects.filter(post=p.post_id)
+			global_comments = GlobalComment.objects.filter(post=p.post_id)
+			p.comments = sorted(
+		    chain(local_comments, global_comments),
+		    	key=attrgetter('pub_date'))
 
-	for post in posts:
-		all_posts.append(post)
+		for post in posts:
+			all_posts.append(post)
 
-	#print all_posts[0].comments
-	list.sort(all_posts)
+		#print all_posts[0].comments
+		list.sort(all_posts)
 
-	context = dict()
-	context['current_author'] = curAuth
-	context['posts'] = all_posts
-		
-	if queryAuth == curAuth:
-		return render(request,'authors/index.html', context)
-	else:
+		context = dict()
+		context['current_author'] = curAuth
+		context['posts'] = all_posts
+			
+		if queryAuth == curAuth:
+			return render(request,'authors/index.html', context)
+		else:
+			context['current_author'] = queryAuth
+			context['authorName'] = queryAuth.user.username
+			print queryAuth.user.username
+			return render(request,'authors/profile.html', context)
+	except:
+
+		posts, errors, globalAuth = getExternalPosts(uuid, request)
+		print "Makes it back out"
+
+
+		context = dict()
+		context['current_author'] = globalAuth
+		context['posts'] = posts
+		context['authorName'] = globalAuth.global_author_name
 		return render(request,'authors/profile.html', context)
+
+
+def getExternalPosts(uuid, request):
+	curAuth = Author.objects.get(user=request.user)
+	queryAuth = GlobalAuthor.objects.get(global_author_id=uuid)
+	host = queryAuth.host
+	node = str(host)+"api/"
+	postConv = PostConverter()
+	posts = []
+	errors = []
+	print "made it"
+	n = Node.objects.get(node_url=node)
+	url = node + 'author/' +str(uuid) + '/posts?id='+curAuth.author_id
+	req = urllib2.Request(url)
+	print url
+	basic_auth_token = 'Basic ' + n.basic_auth_token
+	req.add_header('Authorization', basic_auth_token)
+	#print 'authorizes'
+	
+	
+
+	sd = urllib2.urlopen(req).read()
+	#sd = urllib2.urlopen(url).read()
+	#print 'sends request'
+	stream = BytesIO(sd)
+	data = JSONParser().parse(stream)
+	#print "breaks"
+	serializer = PostsDeserializer(data=data)
+	#print serializer
+
+	serializer.is_valid()
+	#print "is it?"
+	for p in serializer.data['posts']:
+		#print p
+		p['server'] = n.node_name
+		post = postConv.convert(p)
+		print post
+		posts.append(post)
+
+	#msg = str('Posts could not be loaded from node \'' + n.node_name + '\'. ')
+	#errors.append(msg)
+	
+	'''
+	sd = urllib2.urlopen(req).read()
+	#sd = urllib2.urlopen(url).read()
+	
+	stream = BytesIO(sd)
+	data = JSONParser().parse(stream)
+
+	serializer = PostsDeserializer(data=data)
+
+	serializer.is_valid()
+	
+	for p in serializer.data['posts']:
+		p['server'] = n.node_name
+		post = postConv.convert(p)
+		posts.append(post)
+		'''
+
+	return posts, errors, queryAuth
 
 @login_required
 def add_image(request):
