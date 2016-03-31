@@ -1,7 +1,16 @@
+
+# For rest authentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from authors.models import Author, GlobalAuthor, LocalRelation, GlobalRelation
 from posts.models import Post
+from nodes.models import Node
 from comments.models import Comment, GlobalComment
 from authors.models import Author, GlobalAuthor
 from authors.serializers import AuthorRequestSerializer, FriendSerializer
@@ -10,7 +19,7 @@ from posts.serializers import PostSerializer
 from comments.serializers import CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
@@ -24,6 +33,7 @@ from operator import attrgetter
 from django.db.models import Q
 from django.conf import settings
 import itertools
+import CommonMark
 
 # Default page size
 DEFAULT_PAGE_SIZE = 10
@@ -32,12 +42,32 @@ MAX_PAGE_SIZE = 100
 # Default page number
 DEFAULT_PAGE_NUM = 0
 
+
+#authentication_classes = (SessionAuthentication, BasicAuthentication)
+#permission_classes = (IsAuthenticated,)
+
 # TODO: Change this to a static index page, don't return comments here
 @api_view(['GET','POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def index(request):
-	#return render(request,'api/index.html')
+
+	content = {
+		'user': unicode(request.user),
+		'auth': unicode(request.auth),
+	}
+
+	print 'User: ', content['user']
+	print 'Auth: ', content['auth']
+
+	#node = Node.objects.get(node_user = content['user'])
+	#print 'Node: ', node
+
 	''' List all comments '''
 	''' TODO: Why is this returning comments? '''
+
+
+
 	if request.method == 'GET':
 		comments = Comment.objects.all()
 		serializer = CommentSerializer(comments, many=True)
@@ -50,6 +80,8 @@ def index(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def queryFriends(request, uuid):
 	'''GET returns friends of author_id'''
 	# a reponse if friends or not
@@ -129,6 +161,8 @@ def queryFriends(request, uuid):
 
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def queryFriend2Friend(request, uuid1, uuid2):
 	'''ask if 2 authors are friends'''
 	if request.method == 'GET':
@@ -144,6 +178,8 @@ def queryFriend2Friend(request, uuid1, uuid2):
 		return Response({"query": "friends", "authors":[uuid1, uuid2], "friends": areFriends})
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def getPosts(request):
 
 	# Page num and size, default if not given
@@ -200,6 +236,8 @@ def getPosts(request):
 		return HttpResponseBadRequest("Need to give id in url: ?id=<author_id>")
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def getProfile(request, uuid):
 	#View an authors profile
 	#try:
@@ -214,6 +252,8 @@ def getProfile(request, uuid):
 		return Response(serializer.data)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def authorPost(request, uuid):
 	'''get all posts made by author_id visible to the current authenticated user'''
 	if request.method == 'GET':
@@ -252,6 +292,8 @@ def authorPost(request, uuid):
 
 #get and put for update are done
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def singlePost(request, uuid):
 	'''GET returns a single post
 	POST inserts a post
@@ -373,6 +415,8 @@ GET:
 # http://www.django-rest-framework.org/tutorial/1-serialization/
 # http://www.django-rest-framework.org/tutorial/2-requests-and-responses/
 @api_view(['GET','POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def publicPosts(request):
 
 	'''List all public posts on the server'''
@@ -516,6 +560,8 @@ POST:
 			HTTP 400 Bad Request
 '''
 @api_view(['GET', 'POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def comments(request, uuid):
 	if request.method == 'GET':
 
@@ -581,9 +627,16 @@ def comments(request, uuid):
 			print 'Found a post...'
 			comment = GlobalComment(author=author, post=post)
 			print 'Initialized a comment..'
-			comment.comment_text = request.data['comment']
+
+			if request.data['contentType'] == 'text/x-markdown':
+				markedOne= CommonMark.commonmark(request.data['comment'])
+				comment.comment_text = markedOne
+			else:	
+				comment.comment_text = request.data['comment']
+
 			print 'added text..'
 			comment.contentType = request.data['contentType']
+
 			print 'Added comment type'
 			comment.save()
 			print 'Successfully created comment'
@@ -594,6 +647,8 @@ def comments(request, uuid):
 
 @csrf_exempt
 @api_view(['POST'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def friendRequest(request):
 	'''Make a friend request'''
 	if request.method == 'POST':
@@ -767,6 +822,8 @@ def friendRequest(request):
 	return Response("Friend request cannot be processed.", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@authentication_classes((SessionAuthentication, BasicAuthentication))
+@permission_classes((IsAuthenticated,))
 def allAuthors(request):
 	'''returns all local users on this node'''
 	if request.method == 'GET':
