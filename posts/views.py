@@ -38,6 +38,9 @@ def post_new(request):
 			if post.contentType == 'text/x-markdown':
 				post.content =  CommonMark.commonmark(post.content)
 			post.save()
+			if request.POST['image_url']:
+				post.content = post.content + "<br><img src="+"'"+request.POST['image_url']+"'"+"/>"
+			post.save()
 			#return redirect('show_posts')
 			#return render(request, 'authors/index.html', {'form':form})
 			if imageForm.is_valid():
