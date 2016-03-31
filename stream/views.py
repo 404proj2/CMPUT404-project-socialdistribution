@@ -17,7 +17,7 @@ from itertools import chain
 from operator import attrgetter
 #from django.core import serializers
 
-import urllib2
+import urllib2, base64
 #import json
 
 from django.utils.six import BytesIO
@@ -43,9 +43,13 @@ def getExternalPosts():
 	for n in nodes:
 		url = n.node_url + 'posts/'
 		req = urllib2.Request(url)
-		basic_auth_token = 'Basic ' + n.basic_auth_token
-		req.add_header('Authorization', basic_auth_token)
+		#basic_auth_token = 'Basic ' + n.basic_auth_token
+		#req.add_header('Authorization', basic_auth_token)
 		
+		base64string = base64.encodestring('%s:%s' % (n.basic_auth_username, n.basic_auth_password)).replace('\n', '')
+		req.add_header("Authorization", "Basic %s" % base64string)   
+		#result = urllib2.urlopen(req)
+
 		try:
 			sd = urllib2.urlopen(req).read()
 			#sd = urllib2.urlopen(url).read()
