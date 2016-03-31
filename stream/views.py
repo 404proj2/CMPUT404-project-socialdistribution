@@ -45,7 +45,7 @@ def getExternalPosts():
 		req = urllib2.Request(url)
 		basic_auth_token = 'Basic ' + n.basic_auth_token
 		req.add_header('Authorization', basic_auth_token)
-		'''
+		
 		try:
 			sd = urllib2.urlopen(req).read()
 			#sd = urllib2.urlopen(url).read()
@@ -81,7 +81,7 @@ def getExternalPosts():
 			p['server'] = n.node_name
 			post = postConv.convert(p)
 			posts.append(post)
-			
+		'''
 
 	return posts, errors
 
