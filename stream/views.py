@@ -33,7 +33,7 @@ def convert(post_dict):
 	post.title = post_dict.title
 	return post
 
-def getExternalPosts():
+def getExternalPosts(author):
 
 	nodes = Node.objects.all()
 	postConv = PostConverter()
@@ -41,7 +41,13 @@ def getExternalPosts():
 	errors = []
 
 	for n in nodes:
-		url = n.node_url + 'posts/'
+		
+		# This is just terrible
+		if n.node_name == 'Team 6':
+			url = n.node_url + 'posts/'
+		else:
+			url = n.node_url + 'author/posts/?id=' + str(author.author_id)
+		
 		req = urllib2.Request(url)
 		#basic_auth_token = 'Basic ' + n.basic_auth_token
 		#req.add_header('Authorization', basic_auth_token)
@@ -49,11 +55,10 @@ def getExternalPosts():
 		base64string = base64.encodestring('%s:%s' % (n.basic_auth_username, n.basic_auth_password)).replace('\n', '')
 		req.add_header("Authorization", "Basic %s" % base64string)   
 		#result = urllib2.urlopen(req)
-
+		
 		try:
 			sd = urllib2.urlopen(req).read()
-			#sd = urllib2.urlopen(url).read()
-			
+
 			stream = BytesIO(sd)
 			data = JSONParser().parse(stream)
 
@@ -73,10 +78,10 @@ def getExternalPosts():
 		'''
 		sd = urllib2.urlopen(req).read()
 		#sd = urllib2.urlopen(url).read()
-		
+		print sd
 		stream = BytesIO(sd)
 		data = JSONParser().parse(stream)
-
+		print data
 		serializer = PostsDeserializer(data=data)
 
 		serializer.is_valid()
@@ -85,8 +90,8 @@ def getExternalPosts():
 			p['server'] = n.node_name
 			post = postConv.convert(p)
 			posts.append(post)
-		'''
-
+		
+'''
 	return posts, errors
 
 def byDate(self, other):
@@ -113,7 +118,7 @@ def index(request):
 		all_posts.append(post)
 	
 	# Get external posts
-	ext_posts, errors = getExternalPosts()# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
+	ext_posts, errors = getExternalPosts(author)# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
 	#for post in ext_posts:
 	#
 	#	print post.comments
