@@ -15,7 +15,12 @@ from django.contrib.auth.decorators import login_required
 from posts.converter import PostConverter
 from itertools import chain
 from operator import attrgetter
+from django.db.models import Q
 #from django.core import serializers
+import datetime
+import pytz
+
+utc=pytz.UTC
 
 import urllib2, base64
 #import json
@@ -105,7 +110,10 @@ def index(request):
 	all_posts = []
 	
 	# Get local posts and attach the comments
-	int_posts = Post.objects.filter(published__lte=timezone.now()).order_by('-published')
+	#int_posts = Post.objects.filter(published__lte=timezone.now()).order_by('-published')
+
+	int_posts = Post.objects.filter(Q(visibility = 'PUBLIC') | Q(visibility = 'SERVERONLY') | Q(author = author)).order_by('-published')
+
 	for p in int_posts:
 		p.server = "Local"
 		local_comments = Comment.objects.filter(post=p.post_id)
@@ -119,16 +127,19 @@ def index(request):
 	
 	# Get external posts
 	ext_posts, errors = getExternalPosts(author)# Post.objects.filter(published__lte=timezone.now()).order_by('-published')#getExternalPosts()
-	#for post in ext_posts:
-	#
-	#	print post.comments
-	#	post.server = "Remote"
+	for post in ext_posts:
+		post.published = utc.localize(post.published) 
+		#print post.comments
+		#post.server = "Remote"
 
 	#all_posts = chain(all_posts, ext_posts)
 
 	#print all_posts[0].comments
 	#list.sort(all_posts)
-	all_posts = chain(all_posts, ext_posts)
+
+	all_posts = sorted(
+		chain(all_posts, ext_posts),
+		key=attrgetter('published'), reverse=True)
 
 	
 	# Combine the two lists in chronological order
