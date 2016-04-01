@@ -88,7 +88,7 @@ def getExternalPosts():
 def byDate(self, other):
 	return other.published > self.published
 
-@login_required
+@login_required()
 def index(request):
 	author = Author.objects.get(user=request.user)
 

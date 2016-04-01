@@ -15,7 +15,7 @@ import urllib2
 import httplib
 
 
-@login_required
+@login_required()
 def index(request):
 	# this method also allows user to view local and global friends.
 	author = Author.objects.get(user=request.user)
@@ -32,7 +32,7 @@ def index(request):
 	return render(request, 'friends/index.html', context)
 
 # delete local friend
-@login_required
+@login_required()
 def deleteLocalFriend(request, author_id):
 	if request.POST.get('delete_local'):
 		author = Author.objects.get(user=request.user)
@@ -56,7 +56,7 @@ def deleteLocalFriend(request, author_id):
 	return HttpResponseRedirect('/friends/', context)
 
 # delete global friend
-@login_required
+@login_required()
 def deleteGlobalFriend(request, global_author_id):
 	if request.POST.get('delete_global'):
 		author = Author.objects.get(user=request.user)
@@ -74,7 +74,7 @@ def deleteGlobalFriend(request, global_author_id):
 	return HttpResponseRedirect('/friends/', context)
 
 # add local user
-@login_required
+@login_required()
 def addLocalFriend(request, author_id):
 	if request.POST.get('add_local'):
 		query = Author.objects.get(author_id=author_id)
@@ -93,7 +93,7 @@ def addLocalFriend(request, author_id):
 	return HttpResponseRedirect('/friends/', context)
 
 # add global user
-@login_required
+@login_required()
 def addGlobalFriend(request, global_author_id):
 	if request.POST.get('add_global'):
 		query = GlobalAuthor.objects.get(global_author_id=global_author_id)
@@ -145,7 +145,7 @@ def addGlobalFriend(request, global_author_id):
 
 		return HttpResponseRedirect('/friends/', context)
 
-@login_required
+@login_required()
 def confirmlocalrequest(request, author_id):
 	if request.POST.get('confirm_localrequest'):
 		query = Author.objects.get(author_id=author_id)
@@ -172,7 +172,7 @@ def confirmlocalrequest(request, author_id):
 
 	return HttpResponseRedirect('/friends/', context)
 
-@login_required
+@login_required()
 def confirmglobalrequest(request, global_author_id):
 	if request.POST.get('confirm_globalrequest'):
 		author = Author.objects.get(user=request.user)
@@ -224,7 +224,7 @@ def confirmglobalrequest(request, global_author_id):
 
 	return HttpResponseRedirect('/friends/', context)
 
-@login_required
+@login_required()
 def search(request):
 	# TODO: not finished with this yet.
 	if request.method == 'POST':

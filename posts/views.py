@@ -26,12 +26,12 @@ import urllib2
 from django.utils.six import BytesIO
 from rest_framework.parsers import JSONParser
 
-@login_required
+@login_required()
 def index(request):
 	return HttpResponse("Hello you're at posts index")
 
 #adapted from http://tutorial.djangogirls.org/en/django_forms/index.html
-@login_required
+@login_required()
 def post_new(request):
 	if request.method == "POST":
 		form = PostForm(data=request.POST)
@@ -76,7 +76,7 @@ def post_new(request):
 		form = PostForm()
 	return render(request, 'authors/index.html', {'form':form})
 
-@login_required
+@login_required()
 def show_posts(request):
 	print "gets to this point"
 	auth = Author.objects.get(user=request.user)
@@ -93,7 +93,7 @@ def show_posts(request):
 	#print posts
 	return render(request,'authors/index.html', context)
 
-@login_required
+@login_required()
 def delete_post(request):
 	if request.method == "POST":
 		print("id: %s"%request.POST.get("post_id"))
@@ -107,7 +107,7 @@ def delete_post(request):
 			return HttpResponseRedirect('/')
 
 
-@login_required
+@login_required()
 def show_profile(request,uuid):
 	try:
 		curAuth = Author.objects.get(user=request.user)
@@ -212,7 +212,7 @@ def getExternalPosts(uuid, request):
 
 	return posts, errors, queryAuth
 
-@login_required
+@login_required()
 def add_image(request):
 	if request.method == 'POST':
 		form = ImageForm(request.POST, request.FILES)
