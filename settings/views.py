@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 
-@login_required
+@login_required()
 def index(request):
 
 	author = Author.objects.get(user=request.user)

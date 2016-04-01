@@ -11,12 +11,12 @@ from django.core.mail import send_mail
 
 #main source: http://www.tangowithdjango.com/book/chapters/login.html
 
-@login_required
+@login_required()
 def index(request):
 	#TODO: Populate this template with some more information...
 	return render(request, 'profile.html')
 
-@login_required
+@login_required()
 def view_user_profile(request):
 	# This page should have author's (user's) profile, and
 	# display the author's posts only.
@@ -112,7 +112,7 @@ def user_login(request):
 	else:
 		return render_to_response('authors/login.html', {}, context)
 
-@login_required
+@login_required()
 def logout(request):
 	# http://stackoverflow.com/questions/31779234/runtime-error-when-trying-to-logout-django 2016-03-04
 	django_logout(request)
