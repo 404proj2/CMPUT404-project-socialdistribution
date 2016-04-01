@@ -162,7 +162,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
           </div>
         </div>
         <div class="panel-body">
-        <p class="label label-success label-as-badge text-center pull-right" style='padding: 6px; font-size: 0.85em ; '>{{ post.server }}</span></p>
+        <p class="label {% if post.server == 'Local' %}label-success{% else %}label-primary{% endif %} label-as-badge text-center pull-right" style='padding: 6px; font-size: 0.85em ; '>{{ post.server }}</span></p>
           <h4>{{ post.title|title }}</h4>
           <p class='publish-date'>{{ post.published }}</p>
           <p> {{ post.content|safe }}</p>
