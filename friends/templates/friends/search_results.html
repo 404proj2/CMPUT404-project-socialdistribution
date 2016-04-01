@@ -60,13 +60,16 @@
                       <h1 class="friends"><span class="glyphicon glyphicon glyphicon-ok"></span></h1> 
                       <h3>{{ local }}</h3>
                       <div class="btn-group-vertical btn-block">
-                        <button type="button" class="btn btn-default">Profile</button>
+
+                        <a href="../../author/{{ local.author_id }}" class="btn btn-default"role="button">Profile</a>
                       </div>
                     {% else %}
                       <h1 class="not-friends"><span class="glyphicon glyphicon glyphicon-remove"></span></h1>
                       <h3>{{ local }}</h3>
                         <div class="btn-group-vertical btn-block">
-                          <button type="button" class="btn btn-default">Profile</button>
+
+
+                          <a href="../../author/{{ local.author_id }}" class="btn btn-default"role="button">Profile</a>
                           <form method="POST" action="/friends/add_local/{{ local.author_id }}/">
                             {% csrf_token %}
                             <input type="submit" name="add_local" value ="Add Friend" class="btn-group-vertical btn-block btn btn-default"></input>
@@ -89,13 +92,15 @@
                       <h1 class="friends"><span class="glyphicon glyphicon glyphicon-ok"></span></h1> 
                       <h3>{{ global }}</h3>
                       <div class="btn-group-vertical btn-block">
-                        <button type="button" class="btn btn-default">Profile</button>
+                        <a href="../../author/{{ global.global_author_id }}" class="btn btn-default"role="button">Profile</a>
+
                       </div>
                     {% else %}
                       <h1 class="not-friends"><span class="glyphicon glyphicon glyphicon-remove"></span></h1>
                       <h3>{{ global }}</h3>
                         <div class="btn-group-vertical btn-block">
-                          <button type="button" class="btn btn-default">Profile</button>
+                          <a href="../../author/{{ global.global_author_id }}" class="btn btn-default"role="button">Profile</a>
+
                           <form method="POST" action="/friends/add_global/{{ global.global_author_id }}/">
                             {% csrf_token %}
                             <input type="submit" name="add_global" value ="Add Friend" class="btn-group-vertical btn-block btn btn-default"></input>
