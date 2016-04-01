@@ -78,7 +78,7 @@ TODO: Need to figure out how to tell if a friend is already being followed or no
                   <h3>{{ friend }}</h3>
               </center>
               <div class="btn-group-vertical btn-block">
-                  <button type="button" class="btn btn-default">Profile</button>
+                   <a href="../author/{{ friend.author_id }}" class="btn btn-default"role="button">Profile</a>
                   <form method="POST" action="/friends/delete_local/{{ friend.author_id }}/">
                     {% csrf_token %}
                     <input type="submit" name="delete_local" value ="Delete Friend" class="btn-group-vertical btn-block btn btn-default"></input>
@@ -101,7 +101,7 @@ TODO: Need to figure out how to tell if a friend is already being followed or no
                   <h3>{{ global }}</h3>
               </center>
               <div class="btn-group-vertical btn-block">
-                  <button type="button" class="btn btn-default">Profile</button>
+                  <a href="../author/{{ global.global_author_id }}" class="btn btn-default"role="button">Profile</a>
                   <form method="POST" action="/friends/delete_global/{{ global.global_author_id }}/">
                     {% csrf_token %}
                     <input type="submit" name="delete_global" value ="Delete Friend" class="btn-group-vertical btn-block btn btn-default"></input>
