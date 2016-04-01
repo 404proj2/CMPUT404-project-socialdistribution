@@ -49,8 +49,13 @@ def comment_new(request):
             form = CommentForm(data=request.POST)
             if form.is_valid():
 
+                # TODO: FIX THIS, CHECK FOR OR CREATE GLOBAL AUTHOR
+                # MUST ALSO PASS IN THE HOST SO WE CAN RETRIEVE THE CORRECT NODE
                 # Get the author of the comment
+                #try:
                 author = Author.objects.get(user=request.user.id)
+                #except:
+                #    author, status = GlobalAuthor.objects.get_or_create(user=request.user.id)
 
                 # Create the author dictionary object
                 author_dict = {

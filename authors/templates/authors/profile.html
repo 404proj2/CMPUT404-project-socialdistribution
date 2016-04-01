@@ -47,7 +47,7 @@
     <div class="col-md-12">
       <div class="jumbotron">
         {% if user.is_authenticated %}
-          <h1>{{ user.username }}!</h1>
+          <h1>{{ authorName|title }}</h1>
         {% else %}
           <h1>Hello person who is not logged in!</h1>
         {% endif %}
@@ -89,7 +89,7 @@
           <div id="comment-section-{{ post.post_id }}" class="collapse">
             <!-- Comment -->
            {% for comment in post.comments %}
-           <!--{% if comment.post.post_id == post.post_id %}-->
+           <!-- Comment -->
            <div class="panel panel-sm panel-default">
             <div class="panel-heading clearfix">
               <span class="panel-title pull-left"><span class="glyphicon glyphicon-user"></span> {{ comment.author|title }}</span>
@@ -98,10 +98,10 @@
               </div>
             </div>
             <div class="panel-body">
-              <p>{{ comment.comment_text }}</p>
+              <p>{{ comment.comment_text|safe }}</p>
             </div>
           </div>
-          <!--{% endif %}-->
+          <!-- End Comment -->
           {% endfor %}
           <!-- End Comment -->
         </div>

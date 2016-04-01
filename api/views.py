@@ -260,6 +260,8 @@ def authorPost(request, uuid):
 		#assuming only local users can create a post on our server, just have to check posts on our server
 		#also queryID user must exist on our server, as GlobalAuthor
 		queryID = request.GET.get('id', False)
+		print'##########################################################################################'
+		print queryID
 		if queryID:
 			#need to get all posts uuid can see - PUBLIC, PRIVATE if made by them, posts of FOAF, posts of FRIENDS, posts for SERVERONLY
 			posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
@@ -277,7 +279,12 @@ def authorPost(request, uuid):
 					friend_posts = Post.objects.filter(Q(visibility="FRIENDS") | Q(visibility="FOAF") & Q(author__author_id=uuid))
 					posts = itertools.chain(posts, friend_posts)
 				#if queryID user is also local, then can see all SERVERONLY if they are friends
-				queryIDuser = Author.objects.get(author_id=queryID)
+				try:
+					queryIDuser = Author.objects.get(author_id=queryID)
+				except:
+					queryIDuser = GlobalAuthor.objects.get(global_author_id=queryID)
+
+
 				if queryIDuser and local_friend:
 					server_posts = Post.objects.filter(Q(visibility="SERVERONLY") & Q(author__author_id=uuid))
 					posts = itertools.chain(posts, server_posts)
