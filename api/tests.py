@@ -80,6 +80,7 @@ class RESTTestCase(TestCase):
 		# Test author1 has friends
 		url = '/api/friends/' + author1.author_id
 		# print url
+		self.client.login(username='user1', password='password')
 		response = self.client.get(url)
 
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -105,6 +106,7 @@ class RESTTestCase(TestCase):
 		# Test local Friendship
 		url = '/api/friends/' + author1.author_id + '/' + author2.author_id
 		# print url
+		self.client.login(username='user1', password='password')
 		response = self.client.get(url)
 
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -141,6 +143,7 @@ class RESTTestCase(TestCase):
 		print requestData
 		url = '/api/friends/' + author1.author_id
 		print url
+		self.client.login(username='user1', password='password')
 		response = self.client.post(url, requestData, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		print 'RESPONSE DATA:'
@@ -150,6 +153,7 @@ class RESTTestCase(TestCase):
 		# Test no friends
 		requestData = { 'query':'friends', 'author': author3.author_id, 'authors': [author2.author_id, global1.global_author_id]}
 		url = '/api/friends/' + author3.author_id
+		self.client.login(username='user1', password='password')
 		response = self.client.post(url, requestData, format='json')
 		self.assertNotEqual(response.data['authors'], [author2.author_id, global1.global_author_id])
 		self.assertEqual(response.data['authors'], [])
@@ -158,7 +162,8 @@ class RESTTestCase(TestCase):
 		author1=Author.objects.get(user__username='user1')
 		post1=Post.objects.filter(author=author1)
 
-	   	url="/api/author/posts/?id="+author1.author_id 
+	   	url="/api/author/posts/?id="+author1.author_id
+	   	self.client.login(username='user1', password='password')
 	   	response=self.client.get(url)
 	   	self.assertEqual(response.status_code,status.HTTP_200_OK)
 	   	self.assertTrue('posts' in response.data,"No 'posts' in response")
@@ -168,6 +173,7 @@ class RESTTestCase(TestCase):
 		author1=Author.objects.get(user__username='user1')
 		post1=Post.objects.filter(author=author1)
 		url="/api/posts/?id="+author1.author_id
+		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print "Public posts"
 		print response.data
@@ -178,6 +184,7 @@ class RESTTestCase(TestCase):
 	def testgetProfile(self):
 		author1=Author.objects.get(user__username='user1')
 		url="/api/author/"+author1.author_id
+		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Profile Response'
 		print response.data
@@ -187,6 +194,7 @@ class RESTTestCase(TestCase):
 	def testAuthorPosts(self):
 		author1=Author.objects.get(user__username='user1')
 		url="/api/author/"+author1.author_id+"/posts/?id="+author1.author_id
+		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Author 1 Posts'
 		print response.data
@@ -194,6 +202,7 @@ class RESTTestCase(TestCase):
 
 		author2=Author.objects.get(user__username='user2')
 		url="/api/author/"+author2.author_id+"/posts/?id="+author2.author_id
+		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Author 2 Posts'
 		print response.data
@@ -203,6 +212,7 @@ class RESTTestCase(TestCase):
 	def testAllAuthors(self):
 		author1=Author.objects.get(user__username='user1')
 		url="/api/authors/"
+		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print "All Authors"
 		print response.data
@@ -214,6 +224,7 @@ class RESTTestCase(TestCase):
 		postSet=Post.objects.filter(author=author1)
 		post1 = postSet.first()
 		url="/api/posts/"+post1.post_id
+		self.client.login(username='user1', password='password')
 		response = self.client.get(url)
 		print "Get Single post"
 		print response.data
