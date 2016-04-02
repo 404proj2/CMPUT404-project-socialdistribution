@@ -218,8 +218,19 @@ class RESTTestCase(TestCase):
 		print response.data
 		self.assertEqual(response.status_code,status.HTTP_200_OK)
 
+	def testComments(self):
+		author1=Author.objects.get(user__username='user1')
+		postSet=Post.objects.filter(author=author1)
+		commentSet=Comment.objects.filter(post=postSet)
+		url="/api/author/"+author1.author_id+"/comments/?id="+author1.author_id
+		self.client.login(username='user1', password='password')
+		response=self.client.get(url)
+		print 'Comments dispalyed'
+		print response.data
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(Comment.objects.count(), 1)
 
-	def testGetPost(self):
+	def testGetSinglePost(self):
 		author1=Author.objects.get(user__username='user1')
 		postSet=Post.objects.filter(author=author1)
 		post1 = postSet.first()
@@ -229,19 +240,47 @@ class RESTTestCase(TestCase):
 		print "Get Single post"
 		print response.data
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+	# def testUpdatePost(self):
+	#  	author2=Author.objects.get(user__username='user2')
+	#  	postSet=Post.objects.filter(author=author2)
+	#  	#post1["title"]="Change it"
+
+	#   	url="/api/posts/"
+	#   	self.client.login(username='user1', password='password')
+	#   	response = self.client.post(url,post1,format='json')
+	#   	self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+	#   	public_post=response.data
+    
+		
+	# 	public_post["title"]="title changed"
+	# 	#url="/api/posts/"+post1.post_id +"/",editedPost,format='json'
+	# 	self.client.login(username='user1', password='password')
+	# 	response = self.client.put("/api/posts/"+str(public_post["post_id"]) +"/",public_post,format='json')
+	# 	print "CAN I SEE THIS"
+	# 	self.assertEqual(response.status_code, status.HTTP_200_OK)
+	# 	print "something"
+	# 	response.data["published"]= ""
+ #        public_post["published"] = ""
+ #        self.assertEqual(response.data, public_post)
+		
 	
 
 	
 
 
 
-	#def testDeletePost(self):
-	#	author1=Author.objects.get(user__username='user1')
-	#	postSet=Post.objects.filter(author=author1)
-	#	post1=postSet.first()
-	#	url="/api/posts/"+post1.post_id
-	#	response = self.client.delete(url)
-	#	self.assertEqual(response.status_code, 405)
+	def testDeletePost(self):
+			author1=Author.objects.get(user__username='user1')
+			postSet=Post.objects.filter(author=author1)
+			post1=postSet.first()
+			url="/api/posts/"+post1.post_id
+			self.client.login(username='user1', password='password')
+			response = self.client.delete(url)
+			print "deleting??"
+			print response.data
+			self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 	
        
