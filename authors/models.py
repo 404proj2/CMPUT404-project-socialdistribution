@@ -125,6 +125,19 @@ class GlobalAuthor(models.Model):
 	url = models.URLField(blank=True)
 	host = models.CharField(max_length=100, default=settings.LOCAL_HOST) # need to come up with a default host. it CANNOT be local host.
 
+	def getLocalFriends(self):
+		# http://stackoverflow.com/questions/431628/how-to-combine-2-or-more-querysets-in-a-django-view 2016-03-06
+		# current local author can be the first OR second.
+		globalRelations = GlobalRelation.objects.filter(models.Q(global_author=self) & models.Q(relation_status=2))
+		print "this gets here"
+		localFriends = []
+		for relation in globalRelations:
+			if relation.gobal_author == self:
+				# add global friend
+				localFriends.append(relation.local_author)
+
+		return localFriends
+
 	def __unicode__(self): # unicode for Python 2.
 		return self.global_author_name
 

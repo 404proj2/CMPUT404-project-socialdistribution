@@ -189,48 +189,86 @@ def getPosts(request):
 	# Author id as a query parameter
 	queryID = request.GET.get('id', False)
 	if queryID:
+		try:
 		# Get the author
-		author = Author.objects.get(author_id=queryID)
+			author = Author.objects.get(author_id=queryID)
+			print author
+			# Get all of the authors friends
+			local_friends = Author.getLocalFriends(author)
+			global_friends = Author.getGlobalFriends(author)
 
-		# Get all of the authors friends
-		local_friends = Author.getLocalFriends(author)
-		global_friends = Author.getGlobalFriends(author)
+			# Get all of the public posts on the node
+			all_posts = Post.objects.filter(visibility="PUBLIC")
 
-		# Get all of the public posts on the node
-		all_posts = Post.objects.filter(visibility="PUBLIC")
+			# For each friend, get and concatenate their 'Friend-Visible' posts
+			for friend in local_friends:
+				all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
 
-		# For each friend, get and concatenate their 'Friend-Visible' posts
-		for friend in local_friends:
-			all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+			# Get all my own private posts
+			all_posts = list(chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author)))
 
-		# Get all my own private posts
-		all_posts = list(chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author)))
+			# Need this here or else the pagination bitches about it being unicode
+			page_num = int(page_num)
 
-		# Need this here or else the pagination bitches about it being unicode
-		page_num = int(page_num)
+			# Get the right page
+			pages = Paginator(all_posts, page_size)
+			page = pages.page(page_num+1)
+			data = page.object_list
 
-		# Get the right page
-		pages = Paginator(all_posts, page_size)
-		page = pages.page(page_num+1)
-		data = page.object_list
+			response_obj = {}
+			response_obj['query'] = 'posts'
+			response_obj['count'] = len(all_posts)
+			response_obj['size'] = page_size
 
-		response_obj = {}
-		response_obj['query'] = 'posts'
-		response_obj['count'] = len(all_posts)
-		response_obj['size'] = page_size
+			if page.has_next():
+				response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
+			if page.has_previous():
+				response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
 
-		if page.has_next():
-			response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
-		if page.has_previous():
-			response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
+			serializer = PostSerializer(data, many=True)
+			response_obj['posts'] = serializer.data
 
-		serializer = PostSerializer(data, many=True)
-		response_obj['posts'] = serializer.data
+			return Response(response_obj)
 
-		return Response(response_obj)
+			serializer = PostSerializer(all_posts, many=True)
+			return Response(serializer.data)
+		except:
+			print queryID
+			author = GlobalAuthor.objects.get(global_author_id = queryID)
+			local_friends = GlobalAuthor.getLocalFriends(author)
+			# Get all of the public posts on the node
+			all_posts = Post.objects.filter(visibility="PUBLIC")
+			print "gets alll the public posts"
 
-		serializer = PostSerializer(all_posts, many=True)
-		return Response(serializer.data)
+			# For each friend, get and concatenate their 'Friend-Visible' posts
+			for friend in local_friends:
+				all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+			# Get all my own private posts
+
+			# Need this here or else the pagination bitches about it being unicode
+			page_num = int(page_num)
+
+			# Get the right page
+			pages = Paginator(all_posts, page_size)
+			page = pages.page(page_num+1)
+			data = page.object_list
+			response_obj = {}
+			response_obj['query'] = 'posts'
+			response_obj['count'] = len(all_posts)
+			response_obj['size'] = page_size
+
+			if page.has_next():
+				response_obj['next'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num + 1) + '&size=' + str(page_size)
+			if page.has_previous():
+				response_obj['previous'] = settings.LOCAL_HOST + 'author/posts/?id=' + queryID + '&page=' + str(page_num - 1) + '&size=' + str(page_size)
+
+			serializer = PostSerializer(data, many=True)
+			response_obj['posts'] = serializer.data
+
+			return Response(response_obj)
+
+			serializer = PostSerializer(all_posts, many=True)
+			return Response(serializer.data)
 	else:
 		#not given a queryID - bad request
 		return HttpResponseBadRequest("Need to give id in url: ?id=<author_id>")
