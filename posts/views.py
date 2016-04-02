@@ -49,6 +49,8 @@ def post_new(request):
 			post.published = timezone.now()
 			if post.contentType == 'text/x-markdown':
 				post.content =  CommonMark.commonmark(post.content)
+			post.set_source()
+			post.set_origin()
 			post.save()
 			if request.POST['image_url']:
 				post.content = post.content + "<br><img src="+"'"+request.POST['image_url']+"'"+"/>"

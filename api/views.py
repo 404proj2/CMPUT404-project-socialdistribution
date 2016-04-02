@@ -493,6 +493,7 @@ def publicPosts(request):
 			post.visibility = request.data['visibility']
 			post.categories = request.data['categories']
 			post.set_source()
+			post.set_origin()
 			post.save()
 
 
