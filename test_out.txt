@@ -1,0 +1,29 @@
+Creating test database for alias 'default'...
+Author Posts
+{'count': 2, 'posts': [OrderedDict([('comments', [OrderedDict([('author', OrderedDict([('id', u'59ea969d-aadb-4b8f-a424-91fa0cfbff3e'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user1'), ('url', u''), ('github', u'')])), ('comment', u'comment1'), ('contentType', 'text/plain'), ('id', u'ffef4f1f-3aa3-47c2-b84f-a6ecf9546b96'), ('published', datetime.datetime(2016, 3, 31, 1, 5, 0, 470706, tzinfo=<UTC>))])]), ('title', u'title1'), ('source', u'https://mighty-cliffs-82717.herokuapp.com/'), ('origin', u'https://mighty-cliffs-82717.herokuapp.com/'), ('description', u''), ('contentType', u'content1'), ('content', u''), ('author', OrderedDict([('id', u'59ea969d-aadb-4b8f-a424-91fa0cfbff3e'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user1'), ('url', u''), ('github', u'')])), ('published', u'2016-03-31T01:05:00.468846Z'), ('id', u'2e62378f-dc02-4c1c-8c2c-22ca59e39a0f'), ('visibility', 'PUBLIC')]), OrderedDict([('comments', []), ('title', u'title3'), ('source', u'https://mighty-cliffs-82717.herokuapp.com/'), ('origin', u'https://mighty-cliffs-82717.herokuapp.com/'), ('description', u''), ('contentType', u'content3'), ('content', u''), ('author', OrderedDict([('id', u'59ea969d-aadb-4b8f-a424-91fa0cfbff3e'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user1'), ('url', u''), ('github', u'')])), ('published', u'2016-03-31T01:05:00.469780Z'), ('id', u'7f925d05-5e17-4e6c-a031-dd93768821d4'), ('visibility', 'PRIVATE')])], 'next': '', 'query': 'posts', 'size': 50, 'previous': ''}
+{'query': 'friends', 'authors': [u'6fb9379b-74ce-4ac7-ba0b-f4bb9274e1d0', u'e1f8c583-24cc-437a-ada7-273150fdb4f9'], 'author': u'c1924abf-72d7-4307-b1f8-90f1269f5e9e'}
+/api/friends/c1924abf-72d7-4307-b1f8-90f1269f5e9e
+AUTHOR LIST
+[u'6fb9379b-74ce-4ac7-ba0b-f4bb9274e1d0', u'e1f8c583-24cc-437a-ada7-273150fdb4f9']
+ENTERING FRIEND CHECK
+LOCAL FRIEND FOUND
+6fb9379b-74ce-4ac7-ba0b-f4bb9274e1d0
+GLOBAL FRIEND FOUND
+e1f8c583-24cc-437a-ada7-273150fdb4f9
+RESPONSE DATA:
+{'query': 'friends', 'authors': [u'6fb9379b-74ce-4ac7-ba0b-f4bb9274e1d0', u'e1f8c583-24cc-437a-ada7-273150fdb4f9'], 'author': u'c1924abf-72d7-4307-b1f8-90f1269f5e9e'}
+AUTHOR LIST
+[u'6fb9379b-74ce-4ac7-ba0b-f4bb9274e1d0', u'e1f8c583-24cc-437a-ada7-273150fdb4f9']
+ENTERING FRIEND CHECK
+XXX_URL
+/api/posts/?id=8f206f4a-cad8-407f-8364-5f903ddb1a7d
+SHould be printing just one POST RESPONSE
+[OrderedDict([('comments', []), ('title', u'title4'), ('source', u'https://mighty-cliffs-82717.herokuapp.com/'), ('origin', u'https://mighty-cliffs-82717.herokuapp.com/'), ('description', u''), ('contentType', u'content4'), ('content', u''), ('author', OrderedDict([('id', u'8f206f4a-cad8-407f-8364-5f903ddb1a7d'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user6'), ('url', u''), ('github', u'')])), ('published', u'2016-03-31T01:05:02.623344Z'), ('id', u'53d88ebb-bd13-4814-8950-2e76a77507b3'), ('visibility', 'PUBLIC')]), OrderedDict([('comments', []), ('title', u'title2'), ('source', u'https://mighty-cliffs-82717.herokuapp.com/'), ('origin', u'https://mighty-cliffs-82717.herokuapp.com/'), ('description', u''), ('contentType', u'content2'), ('content', u''), ('author', OrderedDict([('id', u'59d70a83-3094-4a6e-92f0-0ecc2dd3da42'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user2'), ('url', u''), ('github', u'')])), ('published', u'2016-03-31T01:05:02.622467Z'), ('id', u'35ebc3b7-e43d-4efb-ad45-d069eeb0d948'), ('visibility', 'PUBLIC')]), OrderedDict([('comments', [OrderedDict([('author', OrderedDict([('id', u'abc91603-b3e1-414d-b0fc-389f54375d12'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user1'), ('url', u''), ('github', u'')])), ('comment', u'comment1'), ('contentType', 'text/plain'), ('id', u'ed7ff022-a268-451f-a51d-19ded7438a85'), ('published', datetime.datetime(2016, 3, 31, 1, 5, 2, 623805, tzinfo=<UTC>))])]), ('title', u'title1'), ('source', u'https://mighty-cliffs-82717.herokuapp.com/'), ('origin', u'https://mighty-cliffs-82717.herokuapp.com/'), ('description', u''), ('contentType', u'content1'), ('content', u''), ('author', OrderedDict([('id', u'abc91603-b3e1-414d-b0fc-389f54375d12'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user1'), ('url', u''), ('github', u'')])), ('published', u'2016-03-31T01:05:02.621959Z'), ('id', u'665e87ab-4ef3-4f4b-a0ab-4d3b6fa0637e'), ('visibility', 'PUBLIC')])]
+user1
+[<Author: user2>, <GlobalAuthor: globalusr1>]
+this shit
+[OrderedDict([('id', u'b1fbe659-2b04-44b7-82d6-d8700ebafc9b'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user2'), ('url', u'')]), OrderedDict([('id', u'48838063-e1f0-41cb-b658-6111ecdeb1f9'), ('host', u'http://127.0.0.1:8000/'), ('displayName', u'globalusr1'), ('url', u'')])]
+{'url': u'', 'friends': [OrderedDict([('id', u'b1fbe659-2b04-44b7-82d6-d8700ebafc9b'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user2'), ('url', u'')]), OrderedDict([('id', u'48838063-e1f0-41cb-b658-6111ecdeb1f9'), ('host', u'http://127.0.0.1:8000/'), ('displayName', u'globalusr1'), ('url', u'')])], 'host': u'https://mighty-cliffs-82717.herokuapp.com/', 'displayName': u'user1', 'id': u'1e2a8833-1db0-402a-a7d0-c2380a1f2dd9'}
+Profile Response
+{'url': u'', 'friends': [OrderedDict([('id', u'b1fbe659-2b04-44b7-82d6-d8700ebafc9b'), ('host', u'https://mighty-cliffs-82717.herokuapp.com/'), ('displayName', u'user2'), ('url', u'')]), OrderedDict([('id', u'48838063-e1f0-41cb-b658-6111ecdeb1f9'), ('host', u'http://127.0.0.1:8000/'), ('displayName', u'globalusr1'), ('url', u'')])], 'host': u'https://mighty-cliffs-82717.herokuapp.com/', 'displayName': u'user1', 'id': u'1e2a8833-1db0-402a-a7d0-c2380a1f2dd9'}
+Destroying test database for alias 'default'...
