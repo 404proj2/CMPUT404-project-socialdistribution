@@ -65,7 +65,12 @@ TODO: Need to figure out how to tell if a friend is already being followed or no
   <li><a data-toggle="tab" href="#remotefriends">Remote Friends</a></li>
   <li><a data-toggle="tab" href="#friendrequests">Friend Requests<span></a></li>
 </ul>
-
+{% for error in errors %}
+    <div class="alert alert-warning fade in">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>Warning!</strong> {{ error }}
+    </div>
+    {% endfor %}
 <div class="tab-content">
 <div id="friends_list" class="tab-pane fade in active">
     <br>

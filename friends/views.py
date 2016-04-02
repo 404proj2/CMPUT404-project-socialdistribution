@@ -238,29 +238,48 @@ def search(request):
 			# Get all remote users on each node
 			for node in nodes:
 				try:
-					remote_url = node.node_url + 'authors/'
+					#print 'fdsafdsafdsafdsa'
+					# This is just terrible
+					if node.node_name == 'Team 6':
+						remote_url = node.node_url + 'author/'
+					else:
+						remote_url = node.node_url + 'authors/'
+
+					#remote_url = node.node_url + 'authors/'
+					print 'REMOTE URL: ', remote_url
 					remote_auth = node.basic_auth_token
 
 					req = urllib2.Request(remote_url)
 					basic_auth_token = 'Basic ' + node.basic_auth_token
 					req.add_header('Authorization', basic_auth_token)
-
+					print node.node_name
+					print '***************** before'
 					sd = urllib2.urlopen(req).read()
-
+					print '***************** after'
 					#print 'SD: '
 					#print sd
 
 					obj = json.loads(sd)
 
-					#print 'OBJ: '
-					#print obj
+					print 'OBJ: '
+					print obj
 
-					for value in obj['authors']:
-						print 'Value: '
-						print value
-						new_list.append(value)
+					if node.node_name == 'Team 6':
+						print sd
+						for value in obj:
+							print 'Value: '
+							print value
+							new_list.append(value)
+					else:
+						for value in obj['authors']:
+							print 'Value: '
+							print value
+							new_list.append(value)
 					
-					print sd
+					
+
+
+					
 				except:
 					msg = str('Friends could not be loaded from node \'' + node.node_name + '\'. ')
 					errors.append(msg)
@@ -268,7 +287,7 @@ def search(request):
 			# Get all Remote users.
 
 
-			print new_list
+			#print new_list
 
 			for item in new_list:
 				if GlobalAuthor.objects.filter(global_author_id=item['id']).exists():

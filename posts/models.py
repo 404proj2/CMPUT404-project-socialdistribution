@@ -33,8 +33,8 @@ class Post(models.Model):
 
 	def set_source(self):
 		self.source = str(self.source) + "api/posts/" + str(self.post_id)
-	#def set_origin(self):
-	#	self.origin = str(settings.LOCAL_HOST) + "post/" + str(post_id)
+	def set_origin(self):
+		self.origin = str(settings.LOCAL_HOST) + "api/posts/" + str(self.post_id)
 
 
 class Image(models.Model):
