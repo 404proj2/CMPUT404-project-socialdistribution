@@ -252,7 +252,7 @@ def getPosts(request):
 									
 
 			all_posts = list(all_posts)
-			
+
 			# Need this here or else the pagination bitches about it being unicode
 			page_num = int(page_num)
 			# # Get the right page
@@ -452,9 +452,44 @@ def authorPost(request, uuid):
 				local_friend = LocalRelation.objects.filter((Q(author1__author_id=uuid) & Q(author2__author_id=queryID) & Q(relation_status=True)) | (Q(author1__author_id=queryID) & Q(author2__author_id=uuid) & Q(relation_status=True)))
 				if global_friend or local_friend:
 					#then uuid and queryID are friends, can return all FRIENDS and FOAF posts
-					friend_posts = Post.objects.filter(Q(visibility="FRIENDS") | Q(visibility="FOAF") & Q(author__author_id=uuid))
+					friend_posts = Post.objects.filter((Q(visibility="FRIENDS") | Q(visibility="FOAF")) & Q(author__author_id=uuid))
 					posts = itertools.chain(posts, friend_posts)
 				#if queryID user is also local, then can see all SERVERONLY if they are friends
+
+				globalFriendsList = []
+				globalFriendsList = user.getGlobalFriends()
+
+				localFriendsList = []
+				localFriendsList = user.getLocalFriends()
+
+				all_friends = list(itertools.chain(localFriendsList, globalFriendsList))
+
+				id_list = []
+
+				if len(all_friends) > 0:
+
+					for friend in all_friends:
+						if friend.getClassName() == "Author":
+							id_list.append(friend.author_id)
+						elif friend.getClassName() == "GlobalAuthor":
+							id_list.append(friend.global_author_id)
+					
+					requestObj = {
+						"query":"friends",
+						"author":queryID,
+						"authors": id_list
+					}
+
+					response = CheckForMutualFriends(requestObj, user)
+
+					FOAF_list = response['authors']
+					print "FOAF"
+					print FOAF_list
+
+					if len(FOAF_list) > 0:
+						# at least 1 mutual friend exists between global <author_id> and user
+						posts = chain(posts, Post.objects.filter(visibility="FOAF", author=user))
+
 				try:
 					queryIDuser = Author.objects.get(author_id=queryID)
 				except:
@@ -464,7 +499,9 @@ def authorPost(request, uuid):
 				if queryIDuser and local_friend:
 					server_posts = Post.objects.filter(Q(visibility="SERVERONLY") & Q(author__author_id=uuid))
 					posts = itertools.chain(posts, server_posts)
-			allPosts = list(posts)
+
+			# See all accessible, unique posts
+			allPosts = list(set(posts))
 			#get all FOAF, get all posts that are FOAF
 			#if a local user, get all SERVERONLY from friends
 			serializer = PostSerializer(allPosts, many=True)
