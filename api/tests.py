@@ -241,11 +241,6 @@ class RESTTestCase(TestCase):
 		print response.data
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-	
-	
-
-
-
 	def testDeletePost(self):
 			author1=Author.objects.get(user__username='user1')
 			postSet=Post.objects.filter(author=author1)
