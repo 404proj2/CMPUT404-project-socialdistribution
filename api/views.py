@@ -115,6 +115,7 @@ def queryFriends(request, uuid):
 	# ask a service if anyone in the list is a friend
 	# POST to http://service/friends/<authorid>
 	elif request.method == 'POST':
+		print 'IN POST FRIEND SEARCH'
 		author = None
 		try:
 			author = Author.objects.get(author_id=uuid)
@@ -190,7 +191,7 @@ def getPosts(request):
 	queryID = request.GET.get('id', False)
 	if queryID:
 		try:
-		# Get the author
+		# Get the local author
 			author = Author.objects.get(author_id=queryID)
 			print author
 			# Get all of the authors friends
@@ -200,21 +201,64 @@ def getPosts(request):
 			# Get all of the public posts on the node
 			all_posts = Post.objects.filter(visibility="PUBLIC")
 
-			# For each friend, get and concatenate their 'Friend-Visible' posts
-			for friend in local_friends:
-				all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
+			# LOCAL FOAF STUFF
+			# Need to go via all local users' local friends first to see if the <author_id> is friends
+			all_local_authors = Author.objects.all() # need to exclude self?
+			for local_author in all_local_authors:
+				print local_author.user
 
-			# Get all my own private posts
-			all_posts = list(chain(all_posts, Post.objects.filter(visibility="PRIVATE", author=author)))
+				# get author's global friends and see if the global <author_id> is friends or not.
+				localFriends = set(local_author.getLocalFriends())
+				
+				globalFriendsList = local_author.getGlobalFriends()
+				localFriendsList = local_author.getLocalFriends()
 
+				# Already friends
+				if author in localFriends:
+					all_posts = chain(all_posts, Post.objects.filter(visibility="SERVERONLY", author=local_author))
+					all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=local_author))
+					all_posts = chain(all_posts, Post.objects.filter(visibility="FOAF", author=local_author))
+				else:
+					# Send POST to /api/friends/<queryID> to check if anyone in the list is a friend
+					# check if <author_id> is friends with any one of local_author's friends
+
+
+					local_author_friends = list(itertools.chain(localFriendsList, globalFriendsList))
+					id_list = []
+
+					if len(local_author_friends) > 0:
+
+						for friend in local_author_friends:
+							if friend.getClassName() == "Author":
+								id_list.append(friend.author_id)
+							elif friend.getClassName() == "GlobalAuthor":
+								id_list.append(friend.global_author_id)
+
+						requestObj = {
+							"query":"friends",
+							"author":queryID,
+							"authors": id_list
+						}
+
+						response = CheckForMutualFriends(requestObj, author)
+
+						FOAF_list = response['authors']
+						print "FOAF"
+						print FOAF_list
+
+						if len(FOAF_list) > 0:
+							# at least 1 mutual friend exists between local <author_id> and local_author
+							all_posts = chain(all_posts, Post.objects.filter(visibility="FOAF", author=local_author))
+									
+
+			all_posts = list(all_posts)
+			
 			# Need this here or else the pagination bitches about it being unicode
 			page_num = int(page_num)
-
-			# Get the right page
+			# # Get the right page
 			pages = Paginator(all_posts, page_size)
 			page = pages.page(page_num+1)
 			data = page.object_list
-
 			response_obj = {}
 			response_obj['query'] = 'posts'
 			response_obj['count'] = len(all_posts)
@@ -233,24 +277,70 @@ def getPosts(request):
 			serializer = PostSerializer(all_posts, many=True)
 			return Response(serializer.data)
 		except:
+			print 'why you here'
 			print queryID
 			author = GlobalAuthor.objects.get(global_author_id = queryID)
-			local_friends = GlobalAuthor.getLocalFriends(author)
 			# Get all of the public posts on the node
 			all_posts = Post.objects.filter(visibility="PUBLIC")
-			print "gets alll the public posts"
 
-			# For each friend, get and concatenate their 'Friend-Visible' posts
-			for friend in local_friends:
-				all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=friend))
-			# Get all my own private posts
+			# GLOBAL FOAF STUFF
+			# Need to go via all local users' global friends first to see if the <author_id> is friends with
+			all_local_authors = Author.objects.all() # need to exclude self?
+			for local_author in all_local_authors:
+				# get author's global friends and see if the global <author_id> is friends or not.
+				globalFriends = set(local_author.getGlobalFriends())
+				
+				globalFriendsList = local_author.getGlobalFriends()
+				localFriendsList = local_author.getLocalFriends()
 
+				print "LOCAL AUTHOR IN GLOBAL FOAF STUFF: "
+				print local_author.user
+				# Already friends
+				if author in globalFriends:
+					all_posts = chain(all_posts, Post.objects.filter(visibility="FRIENDS", author=local_author))
+					all_posts = chain(all_posts, Post.objects.filter(visibility="FOAF", author=local_author))
+				else:
+					# Send POST to /api/friends/<queryID> to check if anyone in the list is a friend
+					# check if <author_id> is friends with any one of local_author's friends
+
+					local_author_friends = list(itertools.chain(localFriendsList, globalFriendsList))
+
+					id_list = []
+
+					if len(local_author_friends) > 0:
+
+						for friend in local_author_friends:
+							if friend.getClassName() == "Author":
+								id_list.append(friend.author_id)
+							elif friend.getClassName() == "GlobalAuthor":
+								id_list.append(friend.global_author_id)
+
+						
+						requestObj = {
+							"query":"friends",
+							"author":queryID,
+							"authors": id_list
+						}
+
+						response = CheckForMutualFriends(requestObj, author)
+
+						FOAF_list = response['authors']
+						print "FOAF"
+						print FOAF_list
+
+						if len(FOAF_list) > 0:
+							# at least 1 mutual friend exists between global <author_id> and local_author
+							all_posts = chain(all_posts, Post.objects.filter(visibility="FOAF", author=local_author))
+							
+
+			all_posts = list(all_posts)
 			# Need this here or else the pagination bitches about it being unicode
 			page_num = int(page_num)
-
 			# Get the right page
 			pages = Paginator(all_posts, page_size)
+			print 'all good here'
 			page = pages.page(page_num+1)
+			print 'cant see this'
 			data = page.object_list
 			response_obj = {}
 			response_obj['query'] = 'posts'
@@ -272,6 +362,54 @@ def getPosts(request):
 	else:
 		#not given a queryID - bad request
 		return HttpResponseBadRequest("Need to give id in url: ?id=<author_id>")
+
+
+def CheckForMutualFriends(requestObj, authorObj):
+	print 'IN POST FRIEND SEARCH'
+	author = authorObj
+	author_list = requestObj['authors']
+	print 'AUTHOR LIST'
+	print author_list
+
+	# get local and global friends based on specified uuid, works also for global.
+	local_friends = author.getLocalFriends()
+
+	global_friends = []
+	if author.getClassName() == 'Author':
+		global_friends = author.getGlobalFriends()
+
+	friends = []
+	print 'ENTERING FRIEND CHECK'
+	for auth in author_list:
+
+		# check in local friends list to compare and add matching IDs to friends list
+		for friend in local_friends:
+			if friend.author_id == auth:
+				friends.append(auth)
+
+		# check in global friends list to compare and add matching IDs to friends list
+		for friend in global_friends:
+			if friend.global_author_id == auth:
+				friends.append(auth)
+
+	print 'preparing response'
+	# create expected response object
+
+	if author.getClassName() == 'Author':
+		response = {
+			"query":"friends",
+			"author":author.author_id,
+			"authors": friends
+		}
+	else:
+		response = {
+			"query":"friends",
+			"author":author.global_author_id,
+			"authors": friends
+		}
+
+	# return response
+	return response
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication, BasicAuthentication))
