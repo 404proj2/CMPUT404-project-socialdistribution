@@ -242,15 +242,15 @@ class RESTTestCase(TestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def testDeletePost(self):
-			author1=Author.objects.get(user__username='user1')
-			postSet=Post.objects.filter(author=author1)
-			post1=postSet.first()
-			url="/api/posts/"+post1.post_id
-			self.client.login(username='user1', password='password')
-			response = self.client.delete(url)
-			print "deleting??"
-			print response.data
-			self.assertEqual(response.status_code, status.HTTP_200_OK)
+		author1=Author.objects.get(user__username='user1')
+		postSet=Post.objects.filter(author=author1)
+		post1=postSet.first()
+		url="/api/posts/"+post1.post_id
+		self.client.login(username='user1', password='password')
+		response = self.client.delete(url)
+		print "deleting??"
+		print response.data
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 	
