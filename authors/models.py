@@ -132,7 +132,7 @@ class GlobalAuthor(models.Model):
 		print "this gets here"
 		localFriends = []
 		for relation in globalRelations:
-			if relation.gobal_author == self:
+			if relation.global_author == self:
 				# add global friend
 				localFriends.append(relation.local_author)
 
