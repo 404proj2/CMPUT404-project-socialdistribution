@@ -64,12 +64,13 @@ class RESTTestCase(TestCase):
                 author=author1,
                 comment_id=1,
                 post=post1,
-                comment_text="comment1")
+                comment_text="comment1",
+                contentType="commentContent")
         
 		# Global users
 		global1, __ = GlobalAuthor.objects.get_or_create(global_author_name='globalusr1', host='http://127.0.0.1:8000/')
 		global2, __ = GlobalAuthor.objects.get_or_create(global_author_name='globalusr2', host='http://127.0.0.1:8000/')
-
+		global3, __ = GlobalAuthor.objects.get_or_create(global_author_name='globalusr3', host='http://127.0.0.1:8000/')
 		# Create Global Friendship
 		GlobalRelation.objects.create(local_author=author1, global_author=global1, relation_status=2)
 
@@ -163,19 +164,22 @@ class RESTTestCase(TestCase):
 		self.assertEqual(response.data['authors'], [])
 
 	def testGetVisiblePosts(self):
+		#Returns all posts visible to currently authenticated user
 		author1=Author.objects.get(user__username='user1')
+		author2=Author.objects.get(user__username='user1')
 		post1=Post.objects.filter(author=author1)
 
-	   	url="/api/author/posts/?id="+author1.author_id
+	   	url="/api/author/"+author1.author_id+"/posts/?id="+author2.author_id
 	   	self.client.login(username='user1', password='password')
 	   	response=self.client.get(url)
 	   	print "Get visible posts"
 	   	print response
 	   	self.assertEqual(response.status_code,status.HTTP_200_OK)
 	   	self.assertTrue('posts' in response.data,"No 'posts' in response")
-	   	self.assertEquals(len(response.data['posts']),3,"should return 3 posts")
+	   	self.assertEquals(len(response.data['posts']),2,"should return 2 posts")
 
 	def testpublicPosts(self):
+		#Lists all public posts on the server.
 		author1=Author.objects.get(user__username='user1')
 		post1=Post.objects.filter(author=author1)
 		url="/api/posts/?id="+author1.author_id
@@ -188,6 +192,7 @@ class RESTTestCase(TestCase):
 	   	self.assertEquals(len(response.data['posts']),3,"should return 3 posts")
 
 	def testgetProfile(self):
+		#Returns information about an author's profile
 		author1=Author.objects.get(user__username='user1')
 		url="/api/author/"+author1.author_id
 		self.client.login(username='user1', password='password')
@@ -198,6 +203,7 @@ class RESTTestCase(TestCase):
 
 
 	def testAuthorPosts(self):
+		#Returns all the posts of an author
 		author1=Author.objects.get(user__username='user1')
 		url="/api/author/"+author1.author_id+"/posts/?id="+author1.author_id
 		self.client.login(username='user1', password='password')
@@ -216,6 +222,7 @@ class RESTTestCase(TestCase):
 
 
 	def testAllAuthors(self):
+		#Returns all local authors on the server and 200 OK
 		author1=Author.objects.get(user__username='user1')
 		url="/api/authors/"
 		self.client.login(username='user1', password='password')
@@ -225,7 +232,7 @@ class RESTTestCase(TestCase):
 		self.assertEqual(response.status_code,status.HTTP_200_OK)
 
 	def testGetComments(self):
-		#GET COMMENTS OF A POST
+		#Returns the comments on a post with id {POST_ID}
 		author1=Author.objects.get(user__username='user1')
 		postSet=Post.objects.filter(author=author1)
 		post1=postSet.first()
@@ -243,28 +250,9 @@ class RESTTestCase(TestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(Comment.objects.count(), 1)
 
-	# def testPutComments(self):
-	# 	#MAKE A NEW COMMENT
-	#  	author1=Author.objects.get(user__username='user1')
-	#  	post1=Post.objects.filter(author=author1)
-	#  	postSet=post1.first()
-	 	
-	#  	url="/api/posts/"+postSet.post_id+"/comments/"
-	#  	self.client.login(username='user1', password='password')
-
-	#  	commentSet=Comment.objects.all()
-	# 	comment=CommentSerializer(commentSet,many=True)
-
-	# 	commentSet={"author":author1,"post":postSet,"comment_text":"new comment"}
-	#  	response=self.client.post(url,commentSet,format='json')
-	 	
-	#  	print "New comment created"
-	#  	print response
-	#  	print "work please"
-	#  	self.assertEqual(response.status_code, status.HTTP_200_OK)
- #      #self.assertEqual(Comment.objects.count(), 2)
 
 	def testGetSinglePost(self):
+		#Returns a single post and 200 OK if found
 		author1=Author.objects.get(user__username='user1')
 		postSet=Post.objects.filter(author=author1)
 		post1 = postSet.first()
@@ -276,6 +264,7 @@ class RESTTestCase(TestCase):
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def testDeletePost(self):
+		#Returns 200 OK on success.
 		author1=Author.objects.get(user__username='user1')
 		postSet=Post.objects.filter(author=author1)
 		post1=postSet.first()
