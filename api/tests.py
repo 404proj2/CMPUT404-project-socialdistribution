@@ -144,10 +144,12 @@ class RESTTestCase(TestCase):
 		global1 = GlobalAuthor.objects.get(global_author_name='globalusr1')
 		global2 = GlobalAuthor.objects.get(global_author_name='globalusr2')
 
+		# Data with list of friends to check
 		requestData = { 'query':'friends', 'author': author1.author_id, 'authors': [author2.author_id, global1.global_author_id]}
 		print requestData
 		url = '/api/friends/' + author1.author_id
 		print url
+		# send request and save response
 		self.client.login(username='user1', password='password')
 		response = self.client.post(url, requestData, format='json')
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
