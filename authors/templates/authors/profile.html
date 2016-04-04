@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
   <!-- TODO: pull title from model -->
-  <title>Profile | C404 Social Distribution</title>
+  <title>Profile | Mighty Cliffs</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -24,7 +24,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span> 
       </button>
-      <a class="navbar-brand" href="/">C404 Social Distribution</a>
+      <a class="navbar-brand" href="/">Mighty Cliffs</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
     <ul class="nav navbar-nav">
@@ -82,7 +82,7 @@
         <div class="panel-body">
           <h4>{{ post.title|title }}</h4>
           <p class='publish-date'>{{ post.published }}</p>
-          <p> {{ post.content }}</p>
+          <p> {{ post.content|safe }}</p>
 
           <!-- Comments -->
           <button class="btn btn-default btn-sm" data-toggle="collapse" data-target="#comment-section-{{ post.post_id }}" style='margin-bottom: 4px;'>Comments <span class="badge badge-success">{{ post.comments|length }}</span></button>
