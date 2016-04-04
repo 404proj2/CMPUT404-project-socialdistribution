@@ -84,7 +84,12 @@ def comment_new(request):
 
                 # Get the node url
                 node_name = request.POST.get("node_name")
-                node = Node.objects.get(node_name = node_name)
+                
+                try:
+                    node = Node.objects.get(node_name = node_name)
+                except:
+                    node = Node.objects.get(node_name = "Team 6")
+                
                 node_url = node.node_url
 
                 # Get the node's authentication token
@@ -94,7 +99,13 @@ def comment_new(request):
                 post_id = request.POST.get("post_id")
 
                 # Build the URL to post to
-                url = node_url + "posts/" + post_id + "/comments"
+                url = node_url + "posts/" + post_id + "/comments/"
+
+                #if node_name == 'Team 6':
+                #    url += '/'
+
+                print 'URL:   '
+                print url
 
                 # Create the request object
                 req = urllib2.Request(url)
