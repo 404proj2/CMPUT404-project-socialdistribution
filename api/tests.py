@@ -6,9 +6,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from posts.models import Post
 from posts.serializers import PostSerializer
-from comments.models import Comment
+from comments.models import Comment, GlobalComment
 import urllib
 import json,uuid
+from comments.serializers import CommentSerializer
 # Create your tests here.
 # http://www.django-rest-framework.org/api-guide/testing/ 2016-03-28
 # http://stackoverflow.com/questions/7632315/django-test-client-gets-404-for-all-urls 2016-03-28
@@ -41,6 +42,7 @@ class RESTTestCase(TestCase):
 		LocalRelation.objects.get_or_create(author1=author1, author2=author2, relation_status=True)
 
 		post1=Post.objects.create(author=author1,
+			                      post_id=1,
 			                      contentType="content1",
 			                      title="title1",
 			                      visibility='PUBLIC')
@@ -56,9 +58,11 @@ class RESTTestCase(TestCase):
 			                      contentType="content4",
 			                      title="title4",
 			                      visibility='PUBLIC')
+		
 
 		Comment.objects.create(
                 author=author1,
+                comment_id=1,
                 post=post1,
                 comment_text="comment1")
         
@@ -165,9 +169,11 @@ class RESTTestCase(TestCase):
 	   	url="/api/author/posts/?id="+author1.author_id
 	   	self.client.login(username='user1', password='password')
 	   	response=self.client.get(url)
+	   	print "Get visible posts"
+	   	print response
 	   	self.assertEqual(response.status_code,status.HTTP_200_OK)
 	   	self.assertTrue('posts' in response.data,"No 'posts' in response")
-	   	self.assertEquals(len(response.data['posts']),4,"should return 4 posts")
+	   	self.assertEquals(len(response.data['posts']),3,"should return 3 posts")
 
 	def testpublicPosts(self):
 		author1=Author.objects.get(user__username='user1')
@@ -176,7 +182,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print "Public posts"
-		print response.data
+		print response
 		self.assertEqual(response.status_code,status.HTTP_200_OK)
 		self.assertTrue('posts' in response.data,"No 'posts' in response")
 	   	self.assertEquals(len(response.data['posts']),3,"should return 3 posts")
@@ -187,7 +193,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Profile Response'
-		print response.data
+		print response
 		self.assertEqual(response.status_code,status.HTTP_200_OK)
 
 
@@ -197,7 +203,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Author 1 Posts'
-		print response.data
+		print response
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 		author2=Author.objects.get(user__username='user2')
@@ -205,7 +211,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print 'Author 2 Posts'
-		print response.data
+		print response
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -215,20 +221,48 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
 		print "All Authors"
-		print response.data
+		print response
 		self.assertEqual(response.status_code,status.HTTP_200_OK)
 
-	def testComments(self):
+	def testGetComments(self):
+		#GET COMMENTS OF A POST
 		author1=Author.objects.get(user__username='user1')
 		postSet=Post.objects.filter(author=author1)
-		commentSet=Comment.objects.filter(post=postSet)
-		url="/api/author/"+author1.author_id+"/comments/?id="+author1.author_id
+		post1=postSet.first()
+		
+		url="/api/posts/"+post1.post_id+"/comments/"
+
 		self.client.login(username='user1', password='password')
 		response=self.client.get(url)
+		commentSet=Comment.objects.all()
+		comment=CommentSerializer(commentSet,many=True)
+		
+		
 		print 'Comments dispalyed'
-		print response.data
+		print response
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(Comment.objects.count(), 1)
+
+	# def testPutComments(self):
+	# 	#MAKE A NEW COMMENT
+	#  	author1=Author.objects.get(user__username='user1')
+	#  	post1=Post.objects.filter(author=author1)
+	#  	postSet=post1.first()
+	 	
+	#  	url="/api/posts/"+postSet.post_id+"/comments/"
+	#  	self.client.login(username='user1', password='password')
+
+	#  	commentSet=Comment.objects.all()
+	# 	comment=CommentSerializer(commentSet,many=True)
+
+	# 	commentSet={"author":author1,"post":postSet,"comment_text":"new comment"}
+	#  	response=self.client.post(url,commentSet,format='json')
+	 	
+	#  	print "New comment created"
+	#  	print response
+	#  	print "work please"
+	#  	self.assertEqual(response.status_code, status.HTTP_200_OK)
+ #      #self.assertEqual(Comment.objects.count(), 2)
 
 	def testGetSinglePost(self):
 		author1=Author.objects.get(user__username='user1')
@@ -238,7 +272,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response = self.client.get(url)
 		print "Get Single post"
-		print response.data
+		print response
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def testDeletePost(self):
@@ -249,7 +283,7 @@ class RESTTestCase(TestCase):
 		self.client.login(username='user1', password='password')
 		response = self.client.delete(url)
 		print "deleting??"
-		print response.data
+		print response
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
