@@ -168,9 +168,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
           <p class='publish-date'>{{ post.published }}</p>
           {% if post.server == 'Team 6' and post.contentType == 'text/x-markdown' %}
           <p>
-            {% markdown %} 
-            {{ post.content}}
-            {% endmarkdown %}
+            
+            {{ post.content|markdown}}
 
 
           {% else %}
