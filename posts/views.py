@@ -116,68 +116,65 @@ def delete_post(request):
 
 @login_required()
 def show_profile(request,uuid):
-	queryAuth = Author.objects.get(author_id=uuid)
-
-	
-	curAuth = Author.objects.get(user=request.user)
-
-	
+	try:
+		queryAuth = Author.objects.get(author_id=uuid)
 
 		
-	if queryAuth == curAuth:
-
-		all_posts = []
-		posts= Post.objects.filter(author=queryAuth).order_by('-published')
-		for p in posts:
-			local_comments = Comment.objects.filter(post=p.post_id)
-			global_comments = GlobalComment.objects.filter(post=p.post_id)
-			p.comments = sorted(
-		    chain(local_comments, global_comments),
-		    	key=attrgetter('pub_date'))
-
-		for post in posts:
-			all_posts.append(post)
-
-		#print all_posts[0].comments
-		list.sort(all_posts)
-
-		context = dict()
-		context['current_author'] = curAuth
-		context['posts'] = all_posts
-		return render(request,'authors/index.html', context)
-		
-	else:
-		'''
-		context['current_author'] = queryAuth
-		context['authorName'] = queryAuth.user.username
-		print queryAuth.user.username
-		return render(request,'authors/profile.html', context)
-		'''
-	
-		posts, errors, localAuth = getInternalPosts(uuid, request)
-		print "Makes it back out"
-		context = dict()
-		context['current_author'] = localAuth
-		context['posts'] = posts
-		context['authorName'] = queryAuth.user.username
-		return render(request,'authors/profile.html', context)
-
+		curAuth = Author.objects.get(user=request.user)
 
 		
-'''
+
+			
+		if queryAuth == curAuth:
+
+			all_posts = []
+			posts= Post.objects.filter(author=queryAuth).order_by('-published')
+			for p in posts:
+				local_comments = Comment.objects.filter(post=p.post_id)
+				global_comments = GlobalComment.objects.filter(post=p.post_id)
+				p.comments = sorted(
+			    chain(local_comments, global_comments),
+			    	key=attrgetter('pub_date'))
+
+			for post in posts:
+				all_posts.append(post)
+
+			#print all_posts[0].comments
+			list.sort(all_posts)
+
+			context = dict()
+			context['current_author'] = curAuth
+			context['posts'] = all_posts
+			return render(request,'authors/index.html', context)
+			
+		else:
+			'''
+			context['current_author'] = queryAuth
+			context['authorName'] = queryAuth.user.username
+			print queryAuth.user.username
+			return render(request,'authors/profile.html', context)
+			'''
+		
+			posts, errors, localAuth = getInternalPosts(uuid, request)
+			print "Makes it back out"
+			context = dict()
+			context['current_author'] = localAuth
+			context['posts'] = posts
+			context['authorName'] = queryAuth.user.username
+			return render(request,'authors/profile.html', context)
+
 
 	except:
+		print "okay"
 
 		posts, errors, globalAuth = getExternalPosts(uuid, request)
 		print "Makes it back out"
-
-
 		context = dict()
 		context['current_author'] = globalAuth
 		context['posts'] = posts
 		context['authorName'] = globalAuth.global_author_name
 		return render(request,'authors/profile.html', context)
-'''
+
 
 
 def getExternalPosts(uuid, request):
@@ -188,7 +185,7 @@ def getExternalPosts(uuid, request):
 	postConv = PostConverter()
 	posts = []
 	errors = []
-	print "made it"
+	print "error after this"
 	n = Node.objects.get(node_url=node)
 	url = node + 'author/' +str(uuid) + '/posts?id='+curAuth.author_id
 	req = urllib2.Request(url)
@@ -210,6 +207,7 @@ def getExternalPosts(uuid, request):
 
 	serializer.is_valid()
 	#print "is it?"
+	print "before the return"
 	for p in serializer.data['posts']:
 		#print p
 		p['server'] = n.node_name

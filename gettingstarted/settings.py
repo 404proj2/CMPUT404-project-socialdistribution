@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'comments',
     'nodes',
     'api',
+    'markdown_deux',
     'rest_framework',
     'corsheaders',
     'django.contrib.admin',
