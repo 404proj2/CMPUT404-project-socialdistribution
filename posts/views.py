@@ -15,12 +15,17 @@ from itertools import chain
 from operator import attrgetter
 import CommonMark
 from django.conf import settings
-from authors.models import GlobalAuthor
+from authors.models import GlobalAuthor,LocalRelation, GlobalRelation
 from posts.converter import PostConverter
 from itertools import chain
 from operator import attrgetter
 from nodes.models import Node
 import urllib2
+from itertools import chain
+from operator import attrgetter
+from django.db.models import Q
+from django.conf import settings
+import itertools
 #import json
 
 from django.utils.six import BytesIO
@@ -111,10 +116,15 @@ def delete_post(request):
 
 @login_required()
 def show_profile(request,uuid):
-	try:
-		curAuth = Author.objects.get(user=request.user)
+	queryAuth = Author.objects.get(author_id=uuid)
 
-		queryAuth = Author.objects.get(author_id=uuid)
+	
+	curAuth = Author.objects.get(user=request.user)
+
+	
+
+		
+	if queryAuth == curAuth:
 
 		all_posts = []
 		posts= Post.objects.filter(author=queryAuth).order_by('-published')
@@ -134,14 +144,28 @@ def show_profile(request,uuid):
 		context = dict()
 		context['current_author'] = curAuth
 		context['posts'] = all_posts
-			
-		if queryAuth == curAuth:
-			return render(request,'authors/index.html', context)
-		else:
-			context['current_author'] = queryAuth
-			context['authorName'] = queryAuth.user.username
-			print queryAuth.user.username
-			return render(request,'authors/profile.html', context)
+		return render(request,'authors/index.html', context)
+		
+	else:
+		'''
+		context['current_author'] = queryAuth
+		context['authorName'] = queryAuth.user.username
+		print queryAuth.user.username
+		return render(request,'authors/profile.html', context)
+		'''
+	
+		posts, errors, localAuth = getInternalPosts(uuid, request)
+		print "Makes it back out"
+		context = dict()
+		context['current_author'] = localAuth
+		context['posts'] = posts
+		context['authorName'] = queryAuth.user.username
+		return render(request,'authors/profile.html', context)
+
+
+		
+'''
+
 	except:
 
 		posts, errors, globalAuth = getExternalPosts(uuid, request)
@@ -153,6 +177,7 @@ def show_profile(request,uuid):
 		context['posts'] = posts
 		context['authorName'] = globalAuth.global_author_name
 		return render(request,'authors/profile.html', context)
+'''
 
 
 def getExternalPosts(uuid, request):
@@ -214,6 +239,78 @@ def getExternalPosts(uuid, request):
 
 	return posts, errors, queryAuth
 
+def getInternalPosts(uuid, request):
+	errors = []
+	queryID = Author.objects.get(user=request.user)
+	print queryID
+	if queryID:
+		#need to get all posts uuid can see - PUBLIC, PRIVATE if made by them, posts of FOAF, posts of FRIENDS, posts for SERVERONLY
+		posts = Post.objects.filter((Q(visibility="PUBLIC") & Q(author__author_id=uuid)))
+		#if queryID == uuid then they can see their private posts
+		if queryID == uuid:
+			private_posts = Post.objects.filter(Q(visibility="PRIVATE") & Q(author__author_id=uuid))
+			posts = itertools.chain(posts, private_posts)
+		user = Author.objects.get(author_id=uuid)
+		if user:
+			#then they are a local user, need to check if user and uuid are friends, then can return FRIENDS and FOAF posts
+			global_friend = GlobalRelation.objects.filter(Q(local_author__author_id=uuid) & Q(global_author__global_author_id=queryID) & Q(relation_status='2'))
+			local_friend = LocalRelation.objects.filter((Q(author1__author_id=uuid) & Q(author2__author_id=queryID) & Q(relation_status=True)) | (Q(author1__author_id=queryID) & Q(author2__author_id=uuid) & Q(relation_status=True)))
+			if global_friend or local_friend:
+				#then uuid and queryID are friends, can return all FRIENDS and FOAF posts
+				friend_posts = Post.objects.filter((Q(visibility="FRIENDS") | Q(visibility="FOAF")) & Q(author__author_id=uuid))
+				posts = itertools.chain(posts, friend_posts)
+			#if queryID user is also local, then can see all SERVERONLY if they are friends
+
+			globalFriendsList = []
+			globalFriendsList = user.getGlobalFriends()
+
+			localFriendsList = []
+			localFriendsList = user.getLocalFriends()
+
+			all_friends = list(itertools.chain(localFriendsList, globalFriendsList))
+
+			id_list = []
+
+			if len(all_friends) > 0:
+
+				for friend in all_friends:
+					if friend.getClassName() == "Author":
+						id_list.append(friend.author_id)
+					elif friend.getClassName() == "GlobalAuthor":
+						id_list.append(friend.global_author_id)
+				
+				requestObj = {
+					"query":"friends",
+					"author":queryID,
+					"authors": id_list
+				}
+
+				response = CheckForMutualFriends(requestObj, user)
+
+
+				FOAF_list = response['authors']
+				print "FOAF"
+				print FOAF_list
+
+				if len(FOAF_list) > 0:
+					# at least 1 mutual friend exists between global <author_id> and user
+					posts = chain(posts, Post.objects.filter(visibility="FOAF", author=user))
+
+			print("gets here")
+			#queryIDuser = Author.objects.get(author_id=queryID)
+
+
+
+			if queryID and local_friend:
+				server_posts = Post.objects.filter(Q(visibility="SERVERONLY") & Q(author__author_id=uuid))
+				posts = itertools.chain(posts, server_posts)
+
+		# See all accessible, unique posts
+		allPosts = list(set(posts))
+
+	return posts, errors, queryID
+
+
 @login_required()
 def add_image(request):
 	if request.method == 'POST':
@@ -233,3 +330,50 @@ def add_image(request):
 			context['current_author'] = curAuth
 			return HttpResponse("hello")
 
+
+def CheckForMutualFriends(requestObj, authorObj):
+	print 'IN POST FRIEND SEARCH'
+	author = authorObj
+	author_list = requestObj['authors']
+	print 'AUTHOR LIST'
+	print author_list
+
+	# get local and global friends based on specified uuid, works also for global.
+	local_friends = author.getLocalFriends()
+
+	global_friends = []
+	if author.getClassName() == 'Author':
+		global_friends = author.getGlobalFriends()
+
+	friends = []
+	print 'ENTERING FRIEND CHECK'
+	for auth in author_list:
+
+		# check in local friends list to compare and add matching IDs to friends list
+		for friend in local_friends:
+			if friend.author_id == auth:
+				friends.append(auth)
+
+		# check in global friends list to compare and add matching IDs to friends list
+		for friend in global_friends:
+			if friend.global_author_id == auth:
+				friends.append(auth)
+
+	print 'preparing response'
+	# create expected response object
+
+	if author.getClassName() == 'Author':
+		response = {
+			"query":"friends",
+			"author":author.author_id,
+			"authors": friends
+		}
+	else:
+		response = {
+			"query":"friends",
+			"author":author.global_author_id,
+			"authors": friends
+		}
+
+	# return response
+	return response
