@@ -182,12 +182,19 @@ def getExternalPosts(uuid, request):
 	queryAuth = GlobalAuthor.objects.get(global_author_id=uuid)
 	host = queryAuth.host
 	node = str(host)+"api/"
+
+	print 'NODE: 	'
+	print node
+
 	postConv = PostConverter()
 	posts = []
 	errors = []
 	print "error after this"
-	n = Node.objects.get(node_url=node)
-	url = node + 'author/' +str(uuid) + '/posts?id='+curAuth.author_id
+	try:
+		n = Node.objects.get(node_url=node)
+	except:
+		n = Node.objects.get(node_url='http://project-c404.rhcloud.com/api/')
+	url = n.node_url + 'author/' +str(uuid) + '/posts?id='+curAuth.author_id
 	req = urllib2.Request(url)
 	print url
 	basic_auth_token = 'Basic ' + n.basic_auth_token
